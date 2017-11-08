@@ -114,3 +114,41 @@ def retrieve_phase_tie(wavelength,
         phase_retrieved = prefactor * filtered
 
     return phase_retrieved
+
+
+def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, image_width):
+    """
+    Computes the image plane phase shift of the specimen.
+
+    """
+    resolution = specimen.shape
+    assert len(resolution) == 3
+
+    if len(image_width) == 3:
+        image_width = image_width[0]
+    wavelength = accel_volt_to_lambda(accel_volt)
+    dz = image_width / resolution[0]
+    return np.sum(specimen, axis=0) * PI/(accel_volt * wavelength) * mean_inner_potential * dz
+
+
+def accel_volt_to_lambda(accel_volt):
+    """
+    Calculates wavelength in metres from accelerating voltage in volts.
+
+    """
+    return 12.25e-10/np.sqrt(accel_volt) * 1/np.sqrt(1+(1.6e-19 * accel_volt/(2*9.11e-31*9e16)))
+
+
+def import_specimen(specimen_file):
+
+    with open(specimen_file, 'r') as f:
+        # todo: modify the next two lines to allow reading rectangular specimens
+        specimen_size = int(len(f.readline().split()))
+        resolution = (specimen_size, specimen_size, specimen_size)
+        f.seek(0)
+        specimen = np.zeros((self.specimen_size, self.specimen_size, self.specimen_size))
+        for k in range(resolution[0]):
+            for i in range(resolution[1]):
+                specimen[i, :, k] = f.readline().split()
+            f.readline()
+    return specimen

@@ -82,7 +82,7 @@ def retrieve_phase_tie(wavelength,
     assert len(image_width) == 2
 
     if reg_param_tie is None:
-        self.reg_tie = 0.1 / (np.mean(image_width) * np.mean(resolution))
+        reg_tie = 0.1 / (np.mean(image_width) * np.mean(resolution))
 
     if k_kernel is None:
         k_kernel = _construct_k_kernel(resolution, image_width)

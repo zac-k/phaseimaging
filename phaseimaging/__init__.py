@@ -74,11 +74,11 @@ def retrieve_phase_tie(wavelength,
     the micrographs.
     :return:
     """
-    assert image_under.shape() == image_over.shape()
+    assert image_under.shape == image_over.shape
     if image_in is not None:
-        assert image_in.shape() == image_over.shape()
-    resolution = image_under.shape()
-    assert len(image_under.shape()) == 2
+        assert image_in.shape == image_over.shape
+    resolution = image_under.shape
+    assert len(image_under.shape) == 2
     assert len(image_width) == 2
 
     if reg_param_tie is None:

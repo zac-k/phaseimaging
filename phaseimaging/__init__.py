@@ -146,7 +146,7 @@ def import_specimen(specimen_file):
         specimen_size = int(len(f.readline().split()))
         resolution = (specimen_size, specimen_size, specimen_size)
         f.seek(0)
-        specimen = np.zeros((self.specimen_size, self.specimen_size, self.specimen_size))
+        specimen = np.zeros((specimen_size, specimen_size, specimen_size))
         for k in range(resolution[0]):
             for i in range(resolution[1]):
                 specimen[i, :, k] = f.readline().split()

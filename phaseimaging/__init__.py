@@ -1,0 +1,116 @@
+import numpy as np
+from numpy import fft
+PI = np.pi
+
+
+def intensity_derivative(image_under, image_over, defocus):
+    return (image_under - image_over) / (2 * defocus)
+
+
+def _convolve(image, kernel):
+    """
+    Filters an image in Fourier space. The kernel here is already in
+    Fourier space. Use scipy.signal.fftconvolve() for convolving
+    two real space images.
+    """
+    assert len(image) == len(kernel) and len(image[0]) == len(kernel[0])
+    image = fft.fft2(image)
+    image = fft.fftshift(image)
+    image *= kernel
+    image = fft.ifftshift(image)
+    image = fft.ifft2(image)
+    return image
+
+
+def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie):
+
+    kernel = np.zeros(resolution, dtype=complex)
+    da = tuple([1 / x for x in image_width])
+    for i in range(resolution[0]):
+        for j in range(resolution[1]):
+            i0 = i - resolution[0] / 2
+            j0 = j - resolution[1] / 2
+
+            kernel[i, j] = (i0 * i0 * da[0] * da[0]) + (j0 * j0 * da[1] * da[1])
+    kernel = kernel / (kernel * kernel + reg_param_tie ** 4)
+    return kernel
+
+
+def _construct_k_kernel(resolution, image_width):
+    kernel = np.zeros(list((resolution[0], resolution[1], 2)), dtype=complex)
+    da = tuple([1 / x for x in image_width])
+    for i in range(resolution[0]):
+        for j in range(resolution[1]):
+            i0 = i - resolution[0] / 2
+            j0 = j - resolution[1] / 2
+            kernel[i, j, 0] = i0 * da[0]
+            kernel[i, j, 1] = j0 * da[1]
+    return kernel
+
+def dot_fields(field1, field2):
+    """
+    Pointwise dot-product of two two-dimentional vector fields.
+    :param field1:
+    :param field2:
+    :return:
+    """
+    return field1[:, :, 0] * field2[:, :, 0] + field1[:, :, 1] * field2[:, :, 1]
+
+
+def retrieve_phase_tie(wavelength,
+                       defocus,
+                       image_width,
+                       image_under,
+                       image_over,
+                       image_in=None,
+                       image_intensity=1,
+                       k_kernel=None,
+                       inverse_k_squared_kernel=None,
+                       reg_param=0.1,
+                       reg_param_tie=None
+                       ):
+    """
+    Utilise the transport-of-intensity equation to compute the phase from
+    the micrographs.
+    :return:
+    """
+    assert image_under.shape() == image_over.shape()
+    if image_in is not None:
+        assert image_in.shape() == image_over.shape()
+    resolution = image_under.shape()
+    assert len(image_under.shape()) == 2
+    assert len(image_width) == 2
+
+    if reg_param_tie is None:
+        self.reg_tie = 0.1 / (np.mean(image_width) * np.mean(resolution))
+
+    if k_kernel is None:
+        k_kernel = _construct_k_kernel(resolution, image_width)
+    if inverse_k_squared_kernel is None:
+        inverse_k_squared_kernel = _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie)
+
+    derivative = intensity_derivative(image_under, image_over, defocus)
+    if image_in is not None:
+        regularised_inverse_intensity = image_in / (image_in * image_in + reg_param * reg_param)
+        prefactor = (1. / wavelength) / (2. * PI)
+        derivative_vec = np.zeros((resolution[0], resolution[1], 2), dtype=complex)
+        derivative_vec[:, :, 0] = _convolve(derivative, k_kernel[:, :, 0] *
+                                           inverse_k_squared_kernel
+                                           ) * regularised_inverse_intensity
+        derivative_vec[:, :, 1] = _convolve(derivative, k_kernel[:, :, 1] *
+                                           inverse_k_squared_kernel
+                                           ) * regularised_inverse_intensity
+
+        derivative_vec[:, :, 0] = fft.fftshift(fft.fft2(derivative_vec[:, :, 0]))
+        derivative_vec[:, :, 1] = fft.fftshift(fft.fft2(derivative_vec[:, :, 1]))
+        derivative = dot_fields(k_kernel, derivative_vec) * inverse_k_squared_kernel
+        phase_retrieved = prefactor * fft.ifft2(fft.ifftshift(derivative))
+
+    else:
+        prefactor = (1. / wavelength) / (2 * PI * image_intensity)
+
+        filtered = _convolve(derivative,
+                             inverse_k_squared_kernel)
+        phase_retrieved = prefactor * filtered
+
+    return phase_retrieved

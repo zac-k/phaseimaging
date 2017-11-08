@@ -49,8 +49,8 @@ def dot_fields(field1, field2):
     return field1[:, :, 0] * field2[:, :, 0] + field1[:, :, 1] * field2[:, :, 1]
 
 
-def retrieve_phase_tie(wavelength,
-                       defocus,
+def retrieve_phase_tie(defocus,
+                       wavelength,
                        image_width,
                        image_under,
                        image_over,
@@ -86,10 +86,10 @@ def retrieve_phase_tie(wavelength,
         regularised_inverse_intensity = image_in / (image_in * image_in + reg_param * reg_param)
         prefactor = (1. / wavelength) / (2. * PI)
         derivative_vec = np.zeros((resolution[0], resolution[1], 2), dtype=complex)
-        derivative_vec[:, :, 0] = _convolve(derivative, k_kernel[:, :, 0] *
+        derivative_vec[:, :, 0] = convolve(derivative, k_kernel[:, :, 0] *
                                            inverse_k_squared_kernel
                                            ) * regularised_inverse_intensity
-        derivative_vec[:, :, 1] = _convolve(derivative, k_kernel[:, :, 1] *
+        derivative_vec[:, :, 1] = convolve(derivative, k_kernel[:, :, 1] *
                                            inverse_k_squared_kernel
                                            ) * regularised_inverse_intensity
 
@@ -101,10 +101,9 @@ def retrieve_phase_tie(wavelength,
     else:
         prefactor = (1. / wavelength) / (2 * PI * image_intensity)
 
-        filtered = _convolve(derivative,
-                             inverse_k_squared_kernel)
+        filtered = convolve(derivative, inverse_k_squared_kernel)
         phase_retrieved = prefactor * filtered
-
+    phase_retrieved = np.real(phase_retrieved)
     return phase_retrieved
 
 

@@ -1,6 +1,8 @@
 import numpy as np
 from numpy import fft
 PI = np.pi
+from .plot import save_image
+from .plot import plot_image
 
 
 def intensity_derivative(image_under, image_over, defocus):

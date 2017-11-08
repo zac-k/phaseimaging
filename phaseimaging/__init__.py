@@ -1,27 +1,17 @@
 import numpy as np
 from numpy import fft
+from .utils import convolve
 PI = np.pi
 from .plot import save_image
 from .plot import plot_image
+from .imaging import transfer_image
 
 
 def intensity_derivative(image_under, image_over, defocus):
     return (image_under - image_over) / (2 * defocus)
 
 
-def _convolve(image, kernel):
-    """
-    Filters an image in Fourier space. The kernel here is already in
-    Fourier space. Use scipy.signal.fftconvolve() for convolving
-    two real space images.
-    """
-    assert len(image) == len(kernel) and len(image[0]) == len(kernel[0])
-    image = fft.fft2(image)
-    image = fft.fftshift(image)
-    image *= kernel
-    image = fft.ifftshift(image)
-    image = fft.ifft2(image)
-    return image
+
 
 
 def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie):
@@ -126,10 +116,11 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
     resolution = specimen.shape
     assert len(resolution) == 3
 
+
     if len(image_width) == 3:
         image_width = image_width[0]
     wavelength = accel_volt_to_lambda(accel_volt)
-    dz = image_width / resolution[0]
+    dz = image_width[0] / resolution[0]
     return np.sum(specimen, axis=0) * PI/(accel_volt * wavelength) * mean_inner_potential * dz
 
 

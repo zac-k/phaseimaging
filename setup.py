@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='phaseimaging',
-      version='0.1',
+      version='0.2',
       description='Library of functions for phase imaging',
       url='http://github.com/zac-k/phaseimaging',
       author='Zachary DC Kemp',

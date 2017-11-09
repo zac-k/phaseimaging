@@ -165,3 +165,8 @@ def project_magnetic_phase(specimen,
     phase = (1j * PI * mu0 * magnetisation / phi0) * D0 * inverse_k_squared_kernel * mhatcrossk_z
     phase = fft.ifftshift(phase)
     return np.real(fft.ifft2(phase))
+
+
+def add_noise(image, i_in, sigma):
+
+    return np.where(image >= 0, np.random.poisson(image / (sigma*sigma * i_in)) * (sigma*sigma * i_in), 0)

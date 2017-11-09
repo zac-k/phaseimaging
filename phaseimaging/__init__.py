@@ -8,6 +8,7 @@ from .imaging import retrieve_phase_tie
 from .imaging import project_magnetic_phase
 from .utils import accel_volt_to_lambda
 from .utils import lambda_to_accel_volt
+from .imaging import add_noise
 
 
 

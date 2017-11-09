@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import warnings
 
 
 def plot_image(image, limits=None):
 
     if np.iscomplexobj(image):
-        print('Image is complex; only displaying real part')
+        warnings.warn('Image is complex; only displaying real part')
         image = np.real(image)
     if limits is None:
         plt.imshow(image, cmap='gray')
@@ -24,7 +25,7 @@ def save_image(image, output_path, limits=None):
     ax.set_axis_off()
     fig.add_axes(ax)
     if np.iscomplexobj(image):
-        print('Image is complex; only saving real part')
+        warnings.warn('Image is complex; only saving real part')
         image = np.real(image)
     if limits is None:
         ax.imshow(image, cmap='gray', aspect='auto', interpolation='none')

@@ -1,6 +1,10 @@
 from numpy import fft
 import numpy as np
 
+m0 = 9.11e-31  # Electron rest mass
+e = -1.6e-19  # Electron charge
+c = 3e8  # Speed of light
+
 def convolve(image, kernel):
     """
     Filters an image in Fourier space. The kernel here is already in
@@ -34,11 +38,26 @@ def accel_volt_to_lambda(accel_volt):
     Calculates wavelength in metres from accelerating voltage in volts.
 
     """
-    return 12.25e-10/np.sqrt(accel_volt) * 1/np.sqrt(1+(1.6e-19 * accel_volt/(2*9.11e-31*9e16)))
+    return 12.25e-10/np.sqrt(accel_volt) * 1/np.sqrt(1 + (-e * accel_volt / (2 * m0 * c*c)))
+
+def lambda_to_accel_volt(wavlen):
+    """
+    Calculates electron accelerating voltage in volts from wavelength in metres.
+    """
+    return m0*c*c*(np.sqrt(1 + 4 * (12.25e-10*12.25e-10 * -e)/(wavlen*wavlen * m0 * c*c)) - 1) / (2 * -e)
 
 
 def import_specimen(specimen_file):
+    """
 
+    Args:
+        specimen_file (str): Path of specimen file.
+    returns:
+        ndarray: Three-dimensional binary specimen
+        mask. A value of 1 indicates a voxel where
+        the specimen exists, and a value of 0
+        indicates a voxel where it does not.
+    """
     with open(specimen_file, 'r') as f:
         # todo: modify the next two lines to allow reading rectangular specimens
         specimen_size = int(len(f.readline().split()))

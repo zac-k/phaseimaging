@@ -33,7 +33,7 @@ def _set_transfer_function(defocus, wavelength, resolution, image_width, k_squar
     return np.exp(1j * (PI * defocus * wavelength * k_squared_kernel))
 
 
-def transfer_image(defocus, wavelength, image_width, phase, is_image):
+def transfer_image(defocus, wavelength, image_width, phase, is_image=True):
     """
     Uses the defocus exact_phase (at the image plane) to produce an out of focus
     image or wavefield.
@@ -140,9 +140,6 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
     """
     resolution = specimen.shape
     assert len(resolution) == 3
-
-
-
     wavelength = accel_volt_to_lambda(accel_volt)
     dz = image_width[2] / resolution[2]
     return np.sum(specimen, axis=2) * PI/(accel_volt * wavelength) * mean_inner_potential * dz

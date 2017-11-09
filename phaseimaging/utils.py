@@ -44,7 +44,7 @@ def lambda_to_accel_volt(wavlen):
     """
     Calculates electron accelerating voltage in volts from wavelength in metres.
     """
-    return m0*c*c*(np.sqrt(1 + 4 * (12.25e-10*12.25e-10 * -e)/(wavlen*wavlen * m0 * c*c)) - 1) / (2 * -e)
+    return m0*c*c*(np.sqrt(1 + 2 * (12.25e-10*12.25e-10 * -e)/(wavlen*wavlen * m0 * c*c)) - 1) / -e
 
 
 def import_specimen(specimen_file):

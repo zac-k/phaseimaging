@@ -10,19 +10,22 @@ Note that although I have coded most of the functions to allow for rectangular i
 Generates a 3D numpy array from a specimen file. Input format is a text file (sans the file extension) with each block of rows/columns representing a 2D slice of the binary specimen mask. Each block is separated by an empty line. Specimen files can be generated using my [random-specimen-generator](github.com/zac-k/random-specimen-generator) repository. One specimen file is included in the present repository as an example.
 
   
+|  |  |  |
+|---|---|---|
 | Parameters: | **specimen_file**:*string* |  |
-|-------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |  |  | Path of specimen file |
 | Returns: | **specimen**:*ndarray* |  |
 |  |  | Three-dimensional binary specimen mask. A value of `1` indicates a voxel where the specimen exists, and a value of `0` indicates a voxel where it does not. |
 |  |  |  |
+
 Note: Does not yet support rectangular (non-cubic) arrays.
 ### project_electrostatic_phase
 
 Generates a phase map by projecting the electrostatic potential of the specimen in the z-direction.
 
+|  |  |  |
+|---|---|---|
 | Parameters: | **specimen**:*array_like* |  |
-|-------------|------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
 |  |  | Three-dimensional binary specimen mask. |
 |  | **accel_volt**:*float* |  |
 |  |  | Electron accelerating voltage in volts. |
@@ -37,8 +40,9 @@ Generates a phase map by projecting the electrostatic potential of the specimen 
 
 Generate a phase map by projecting the magnetic vector potential of the specimen in the z-direction.
 
+|  |  |  |
+|---|---|---|
 | Parameters: | **specimen**:*array_like* |  |
-|-------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |  |  | Three-dimensional binary specimen mask. |
 |  | **mhat**:*tuple*, *list* |  |
 |  |  | Magnetisation direction. A vector pointing in the direction of uniform magnetisation of the specimen. The length of this vector has no effect. It is advisable to use a unit vector for clarity. |

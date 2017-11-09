@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def plot_image(image, type=None):
 
+    if np.iscomplexobj(image):
+        print('Image is complex; only displaying real part')
+        image = np.real(image)
     if type == 'image':
         vmin = 0
         vmax = 2
@@ -22,7 +27,9 @@ def save_image(image, output_path, limits=None):
     ax = plt.Axes(fig, [0, 0, 1, 1])
     ax.set_axis_off()
     fig.add_axes(ax)
-    image = image.real
+    if np.iscomplexobj(image):
+        print('Image is complex; only saving real part')
+        image = np.real(image)
     if limits is None:
         ax.imshow(image, cmap='gray', aspect='auto', interpolation='none')
     else:

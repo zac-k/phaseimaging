@@ -7,4 +7,6 @@ setup(name='phaseimaging',
       author='Zachary DC Kemp',
       author_email='zachary.kemp@monash.edu',
       license='GPLv3',
-      packages=['phaseimaging'])
+      packages=['phaseimaging'],
+      install_requires=['numpy',
+                        'matplotlib'])

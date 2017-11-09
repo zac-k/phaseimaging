@@ -2,21 +2,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_image(image, type=None):
+def plot_image(image, limits=None):
 
     if np.iscomplexobj(image):
         print('Image is complex; only displaying real part')
         image = np.real(image)
-    if type == 'image':
-        vmin = 0
-        vmax = 2
-        plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
-    elif type == 'phase':
-        vmin = -3
-        vmax = 3
-        plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
-    else:
+    if limits is None:
         plt.imshow(image, cmap='gray')
+    else:
+        vmin = limits[0]
+        vmax = limits[1]
+        plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
     plt.show(block=True)
 
 

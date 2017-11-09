@@ -142,8 +142,7 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
     assert len(resolution) == 3
 
 
-    if len(image_width) == 3:
-        image_width = image_width[2]
+
     wavelength = accel_volt_to_lambda(accel_volt)
     dz = image_width[2] / resolution[2]
     return np.sum(specimen, axis=2) * PI/(accel_volt * wavelength) * mean_inner_potential * dz

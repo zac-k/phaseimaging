@@ -5,6 +5,7 @@ from .imaging import transfer_image
 from .utils import import_specimen
 from .imaging import project_electrostatic_phase
 from .imaging import retrieve_phase_tie
+from .imaging import project_magnetic_phase
 
 
 

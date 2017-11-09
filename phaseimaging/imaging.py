@@ -2,6 +2,14 @@ import numpy as np
 from .utils import *
 from numpy import pi as PI
 
+h = 6.63e-34  # Planck's constant
+m0 = 9.11e-31  # Electron rest mass
+mu0 = 4 * PI * 10**-7  # Free space permeability
+e = -1.6e-19  # Electron charge
+c = 3e8  # Speed of light
+hbar = h / (2 * PI)  # Reduced Planck constant
+phi0 = h / (2 * e)  # Flux quantum
+
 
 def _construct_k_squared_kernel(resolution, image_width):
 
@@ -42,8 +50,9 @@ def transfer_image(defocus, wavelength, image_width, phase, is_image):
         return wavefunction
 
 
-def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie):
-
+def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param=None):
+    if reg_param is None:
+        reg_param = 0.1 / (np.mean(image_width) * np.mean(resolution))
     kernel = np.zeros(resolution, dtype=complex)
     da = tuple([1 / x for x in image_width])
     for i in range(resolution[0]):
@@ -52,7 +61,7 @@ def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie):
             j0 = j - resolution[1] / 2
 
             kernel[i, j] = (i0 * i0 * da[0] * da[0]) + (j0 * j0 * da[1] * da[1])
-    kernel = kernel / (kernel * kernel + reg_param_tie ** 4)
+    kernel = kernel / (kernel * kernel + reg_param ** 4)
     return kernel
 
 
@@ -91,8 +100,7 @@ def retrieve_phase_tie(defocus,
     assert len(image_under.shape) == 2
     assert len(image_width) == 2
 
-    if reg_param_tie is None:
-        reg_param_tie = 0.1 / (np.mean(image_width) * np.mean(resolution))
+
 
     if k_kernel is None:
         k_kernel = _construct_k_kernel(resolution, image_width)
@@ -135,7 +143,29 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
 
 
     if len(image_width) == 3:
-        image_width = image_width[0]
+        image_width = image_width[2]
     wavelength = accel_volt_to_lambda(accel_volt)
-    dz = image_width[0] / resolution[0]
-    return np.sum(specimen, axis=0) * PI/(accel_volt * wavelength) * mean_inner_potential * dz
+    dz = image_width[2] / resolution[2]
+    return np.sum(specimen, axis=2) * PI/(accel_volt * wavelength) * mean_inner_potential * dz
+
+
+def project_magnetic_phase(specimen,
+                           mhat,
+                           magnetisation,
+                           image_width,
+                           k_kernel=None,
+                           inverse_k_squared_kernel=None):
+    resolution = specimen.shape
+    assert len(image_width) == 3
+    if k_kernel is None:
+        k_kernel = _construct_k_kernel(resolution, image_width)
+    if inverse_k_squared_kernel is None:
+        inverse_k_squared_kernel = _construct_inverse_k_squared_kernel(resolution[0:2], image_width[0:2])
+    mhat = mhat / np.linalg.norm(mhat)
+
+    mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]
+    D0 = fft.fftshift(fft.fftn(specimen))[:, :, int(resolution[2]/2)] * (image_width[2] / resolution[2])
+
+    phase = (1j * PI * mu0 * magnetisation / phi0) * D0 * inverse_k_squared_kernel * mhatcrossk_z
+    phase = fft.ifftshift(phase)
+    return np.real(fft.ifft2(phase))

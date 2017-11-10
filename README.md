@@ -213,4 +213,4 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
 ### Output
 
-![projected phase](https://github.com/zac-k/phaseimaging/README/phase.png)![under-focus image](https://github.com/zac-k/phaseimaging/README/image_under.png)![over-focus image](https://github.com/zac-k/phaseimaging/README/image_over.png)![retrieved phase](https://github.com/zac-k/phaseimaging/README/phase_ret.png)
+![projected phase](README/phase.png)![under-focus image](README/image_under.png)![over-focus image](README/image_over.png)![retrieved phase](README/phase_ret.png)

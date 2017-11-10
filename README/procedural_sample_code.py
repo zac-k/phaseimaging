@@ -22,20 +22,30 @@ phase = phase_mag + phase_elec
 
 # Transfer to under- and over-focus planes
 image_under = phim.transfer_image(-8e-6, 1.96e-12, (100e-9, 100e-9), phase)
+image_in = phim.transfer_image(0, 1.96e-12, (100e-9, 100e-9), phase)
 image_over = phim.transfer_image(8e-6, 1.96e-12, (100e-9, 100e-9), phase)
 
-# Add noise to images
-image_under = phim.add_noise(image_under, 1, 0.15)
-image_over = phim.add_noise(image_over, 1, 0.15)
+# Add noise to images and apply apodisation
+image_under = phim.apodise(phim.add_noise(image_under, 1, 0.15))
+image_in = phim.apodise(phim.add_noise(image_in, 1, 0.15))
+image_over = phim.apodise(phim.add_noise(image_over, 1, 0.15))
 
 # Compute the longitudinal derivative of the intensity
 derivative = phim.intensity_derivative(image_under, image_over, 8e-6)
 
 # Retrieve the phase
-phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative)
+phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative, image_in)
 
 # Plot the phases and intensity images
 phim.plot_image(phase, limits=[-3, 3])
 phim.plot_image(image_under, limits=[0, 2])
+phim.plot_image(image_in, limits=[0, 2])
 phim.plot_image(image_over, limits=[0, 2])
 phim.plot_image(phase_ret, limits=[-3, 3])
+
+
+# phim.save_image(phase, "C:/Users/zac/PycharmProjects/phaseimaging/README/phase.png", limits=[-3, 3])
+# phim.save_image(image_under, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_under.png", limits=[0, 2])
+# phim.save_image(image_in, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_in.png", limits=[0, 2])
+# phim.save_image(image_over, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_over.png", limits=[0, 2])
+# phim.save_image(phase_ret, "C:/Users/zac/PycharmProjects/phaseimaging/README/phase_ret.png", limits=[-3, 3])

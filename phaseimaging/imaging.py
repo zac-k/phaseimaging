@@ -1,6 +1,7 @@
 import numpy as np
 from .utils import *
 from numpy import pi as PI
+import copy
 
 h = 6.63e-34  # Planck's constant
 m0 = 9.11e-31  # Electron rest mass
@@ -169,3 +170,19 @@ def project_magnetic_phase(specimen,
 def add_noise(image, i_in, sigma):
 
     return np.where(image >= 0, np.random.poisson(image / (sigma*sigma * i_in)) * (sigma*sigma * i_in), 0)
+
+
+def apodise(image, rad_sup=0.5):
+
+    x = np.arange(int(-image.shape[0] / 2), int(image.shape[0] / 2))
+    y = np.arange(int(-image.shape[1] / 2), int(image.shape[1] / 2))
+    X,Y = np.meshgrid(x / image.shape[0], y / image.shape[1])
+    output = np.where(X**2 + Y**2 < rad_sup**2, image, 0)
+    for i in range(len(image)):
+        for j in range(len(image[0])):
+            i0 = i - len(image) / 2
+            j0 = j - len(image[0]) / 2
+            r_sqr = i0 * i0 + j0 * j0
+            if r_sqr > (rad_sup * len(image)) * (rad_sup * len(image[0])):
+                output[i, j] = 0
+    return output

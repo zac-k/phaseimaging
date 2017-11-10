@@ -190,21 +190,24 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
     # Transfer to under- and over-focus planes
     image_under = phim.transfer_image(-8e-6, 1.96e-12, (100e-9, 100e-9), phase)
+    image_in = phim.transfer_image(0, 1.96e-12, (100e-9, 100e-9), phase)
     image_over = phim.transfer_image(8e-6, 1.96e-12, (100e-9, 100e-9), phase)
     
-    # Add noise to images
-    image_under = phim.add_noise(image_under, 1, 0.15)
-    image_over = phim.add_noise(image_over, 1, 0.15)
+    # Add noise to images and apply apodisation
+    image_under = phim.apodise(phim.add_noise(image_under, 1, 0.15))
+    image_in = phim.apodise(phim.add_noise(image_in, 1, 0.15))
+    image_over = phim.apodise(phim.add_noise(image_over, 1, 0.15))
     
     # Compute the longitudinal derivative of the intensity
     derivative = phim.intensity_derivative(image_under, image_over, 8e-6)
     
     # Retrieve the phase
-    phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative)
+    phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative, image_in)
     
     # Plot the phases and intensity images
     phim.plot_image(phase, limits=[-3, 3])
     phim.plot_image(image_under, limits=[0, 2])
+    phim.plot_image(image_in, limits=[0, 2])
     phim.plot_image(image_over, limits=[0, 2])
     phim.plot_image(phase_ret, limits=[-3, 3])
 
@@ -238,8 +241,12 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     through_focal_series.add_noise(0.05)
     through_focal_series.compute_derivative()
     
+    # Apodise images in through-focal series
+    through_focal_series.apodise()
+    
     # Use aliases for intensities, for brevity
     image_under = through_focal_series.intensities[0]
+    image_in = through_focal_series.intensities[1]
     image_over = through_focal_series.intensities[-1]
     
     # Retrieve phase
@@ -249,14 +256,12 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     # Plot intensities and phases
     phase.plot(limits=[-3, 3])
     image_under.plot(limits=[0, 2])
+    image_in.plot(limits=[0, 2])
     image_over.plot(limits=[0, 2])
     phase_ret.plot(limits=[-3, 3])
-
-<?php
-echo file_get_contents( "README/object_oriented_sample_code.py" ); ?>
 
     
 ### Output
 
 
-![projected phase](README/phase.png) ![under-focus image](README/image_under.png) ![over-focus image](README/image_over.png) ![retrieved phase](README/phase_ret.png)
+![projected phase](README/phase.png) ![under-focus image](README/image_under.png) ![in-focus image](README/image_in.png) ![over-focus image](README/image_over.png) ![retrieved phase](README/phase_ret.png)

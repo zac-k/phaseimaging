@@ -5,13 +5,18 @@ import copy
 from .imaging import *
 from .plot import *
 
+
 class Image:
     def __init__(self, resolution, width, dtype=float):
         self.resolution = resolution
         self.width = width
+        self.image = np.zeros(resolution, dtype=dtype)
 
     def plot(self, limits=None):
         plot_image(self.image, limits)
+
+    def apodise(self, rad_sup=0.5):
+        self.image = apodise(self.image, rad_sup)
 
 
 class Intensity(Image):
@@ -20,7 +25,6 @@ class Intensity(Image):
         super().__init__(resolution, width)
         self.defocus = defocus
         self.incident = incident
-        self.image = None
         self.shape = self.resolution
 
     def add_noise(self, sigma):
@@ -33,11 +37,11 @@ class Intensity(Image):
 class Phase(Image):
     def __init__(self, resolution, width, defocus=0):
         assert len(resolution) == len(width) == 2
-        super().__init__(resolution, width)
+        super().__init__(resolution, width, dtype=complex)
         self.defocus = defocus
         self.k_kernel = None
         self.inverse_k_squared_kernel = None
-        self.image = np.zeros(resolution, dtype=complex)
+
 
     def construct_kernels(self, reg_param=None):
         self.k_kernel = construct_k_kernel(self.resolution,self.width)
@@ -75,7 +79,7 @@ class Specimen(Image):
         if specimen_file is not None:
             self.image = import_specimen(specimen_file)
         self.resolution = self.image.shape
-        super().__init__(self.resolution, width)
+        self.width = width
         self.mean_inner_potential = mean_inner_potential
         self.magnetisation = magnetisation
         self.mhat = mhat
@@ -118,5 +122,9 @@ class ThroughFocalSeries():
         self. derivative = intensity_derivative(self.intensities[0].image,
                                                 self.intensities[-1].image,
                                         (self.intensities[-1].defocus - self.intensities[0].defocus) / 2)
+
+    def apodise(self, rad_sup=0.5):
+        for intensity in self.intensities:
+            intensity.apodise(rad_sup=rad_sup)
 
 

@@ -26,8 +26,12 @@ through_focal_series.transfer_images(phase, beam)
 through_focal_series.add_noise(0.05)
 through_focal_series.compute_derivative()
 
+# Apodise images in through-focal series
+through_focal_series.apodise()
+
 # Use aliases for intensities, for brevity
 image_under = through_focal_series.intensities[0]
+image_in = through_focal_series.intensities[1]
 image_over = through_focal_series.intensities[-1]
 
 # Retrieve phase
@@ -37,5 +41,6 @@ phase_ret.retrieve_phase_tie(through_focal_series, beam)
 # Plot intensities and phases
 phase.plot(limits=[-3, 3])
 image_under.plot(limits=[0, 2])
+image_in.plot(limits=[0, 2])
 image_over.plot(limits=[0, 2])
 phase_ret.plot(limits=[-3, 3])

@@ -1,14 +1,7 @@
-from .utils import convolve
-from .plot import save_image
-from .plot import plot_image
-from .imaging import transfer_image
-from .utils import import_specimen
-from .imaging import project_electrostatic_phase
-from .imaging import retrieve_phase_tie
-from .imaging import project_magnetic_phase
-from .utils import accel_volt_to_lambda
-from .utils import lambda_to_accel_volt
-from .imaging import add_noise
+from .utils import convolve, import_specimen, accel_volt_to_lambda, lambda_to_accel_volt
+from .plot import save_image, plot_image
+from .imaging import transfer_image, project_magnetic_phase, add_noise
+from .imaging import project_electrostatic_phase, retrieve_phase_tie
 
 
 

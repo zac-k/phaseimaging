@@ -11,7 +11,7 @@ hbar = h / (2 * PI)  # Reduced Planck constant
 phi0 = h / (2 * e)  # Flux quantum
 
 
-def _construct_k_squared_kernel(resolution, image_width):
+def construct_k_squared_kernel(resolution, image_width):
 
     kernel = np.zeros(resolution, dtype=complex)
     for i in range(resolution[0]):
@@ -29,7 +29,7 @@ def _set_transfer_function(defocus, wavelength, resolution, image_width, k_squar
     defocus.
     """
     if k_squared_kernel is None:
-        k_squared_kernel = _construct_k_squared_kernel(resolution, image_width)
+        k_squared_kernel = construct_k_squared_kernel(resolution, image_width)
     return np.exp(1j * (PI * defocus * wavelength * k_squared_kernel))
 
 
@@ -50,7 +50,7 @@ def transfer_image(defocus, wavelength, image_width, phase, is_image=True):
         return wavefunction
 
 
-def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param=None):
+def construct_inverse_k_squared_kernel(resolution, image_width, reg_param=None):
     if reg_param is None:
         reg_param = 0.1 / (np.mean(image_width) * np.mean(resolution))
     kernel = np.zeros(resolution, dtype=complex)
@@ -65,7 +65,7 @@ def _construct_inverse_k_squared_kernel(resolution, image_width, reg_param=None)
     return kernel
 
 
-def _construct_k_kernel(resolution, image_width):
+def construct_k_kernel(resolution, image_width):
     kernel = np.zeros(list((resolution[0], resolution[1], 2)), dtype=complex)
     da = tuple([1 / x for x in image_width])
     for i in range(resolution[0]):
@@ -103,9 +103,9 @@ def retrieve_phase_tie(defocus,
 
 
     if k_kernel is None:
-        k_kernel = _construct_k_kernel(resolution, image_width)
+        k_kernel = construct_k_kernel(resolution, image_width)
     if inverse_k_squared_kernel is None:
-        inverse_k_squared_kernel = _construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie)
+        inverse_k_squared_kernel = construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie)
 
     derivative = intensity_derivative(image_under, image_over, defocus)
     if image_in is not None:
@@ -154,9 +154,9 @@ def project_magnetic_phase(specimen,
     resolution = specimen.shape
     assert len(image_width) == 3
     if k_kernel is None:
-        k_kernel = _construct_k_kernel(resolution, image_width)
+        k_kernel = construct_k_kernel(resolution, image_width)
     if inverse_k_squared_kernel is None:
-        inverse_k_squared_kernel = _construct_inverse_k_squared_kernel(resolution[0:2], image_width[0:2])
+        inverse_k_squared_kernel = construct_inverse_k_squared_kernel(resolution[0:2], image_width[0:2])
     mhat = mhat / np.linalg.norm(mhat)
 
     mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]

@@ -80,6 +80,10 @@ class Specimen(Image):
         self.magnetisation = magnetisation
         self.mhat = mhat
 
+    def plot(self, limits=None):
+        warnings.warn("Specimens can't be plotted in full; plotting slice only.")
+        plot_image(self.image[:, :, int(self.resolution[2]/2 - 1)], limits)
+
 class Beam():
     def __init__(self, wavelength):
         self.wavelength = wavelength
@@ -114,3 +118,5 @@ class ThroughFocalSeries():
         self. derivative = intensity_derivative(self.intensities[0].image,
                                                 self.intensities[-1].image,
                                         (self.intensities[-1].defocus - self.intensities[0].defocus) / 2)
+
+

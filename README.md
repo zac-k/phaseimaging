@@ -166,7 +166,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 
 ### Procedural style
 
-    import phaseimaging as phim    
+    import phaseimaging as phim
     
     # Import the specimen from file
     specimen = phim.import_specimen('C:/Users/zac/PycharmProjects/phaseimaging/specimen')
@@ -184,10 +184,10 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
                                         (1,0,0),
                                magnetisation,
                                         (100e-9, 100e-9, 100e-9))
+    
     # Combine the two components of the phase
     phase = phase_mag + phase_elec
-    # Plot the total phase
-    phim.plot_image(phase)
+    
     # Transfer to under- and over-focus planes
     image_under = phim.transfer_image(-8e-6, 1.96e-12, (100e-9, 100e-9), phase)
     image_over = phim.transfer_image(8e-6, 1.96e-12, (100e-9, 100e-9), phase)
@@ -202,15 +202,16 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     # Retrieve the phase
     phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative)
     
-    # Plot the intensity images and retrieved phase
+    # Plot the phases and intensity images
+    phim.plot_image(phase, limits=[-3, 3])
     phim.plot_image(image_under, limits=[0, 2])
-    phim.plot_image(image_over)
-    phim.plot_image(phase_ret, limits=[-3,3])
+    phim.plot_image(image_over, limits=[0, 2])
+    phim.plot_image(phase_ret, limits=[-3, 3])
 
 ### Object-oriented style
 
-    import phaseimaging as phim    
-    
+    import phaseimaging as phim
+
     # Set magnetisation strength
     mass_mag = 80  # emu/g
     density = 5.18  # g/cm^3
@@ -224,15 +225,12 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
                              specimen_file='C:/Users/zac/PycharmProjects/phaseimaging/specimen')
     
     # Initialise phase and beam
-    phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2]) 
+    phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
     beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
     
     # Project the electrostatic and magnetic phases
     phase.project_electrostatic(specimen, beam)
-    phase.project_magnetic(specimen, beam)    
-    
-    # Plot phase
-    phim.plot_image(phase.image)
+    phase.project_magnetic(specimen, beam)
     
     # Generate through-focal series of intensities and compute derivative
     through_focal_series = phim.ThroughFocalSeries(phase.resolution, phase.width, [-8e-6, 0, 8e-6])
@@ -242,16 +240,21 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
     # Use aliases for intensities, for brevity
     image_under = through_focal_series.intensities[0]
-    image_over = through_focal_series.intensities[2]
+    image_over = through_focal_series.intensities[-1]
     
     # Retrieve phase
     phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
     phase_ret.retrieve_phase_tie(through_focal_series, beam)
     
-    # Plot intensities and retrieved phase
-    phim.plot_image(image_under.image, limits=[0, 2])
-    phim.plot_image(image_over.image)
-    phim.plot_image(phase_ret.image, limits=[-3,3])
+    # Plot intensities and phases
+    phase.plot(limits=[-3, 3])
+    image_under.plot(limits=[0, 2])
+    image_over.plot(limits=[0, 2])
+    phase_ret.plot(limits=[-3, 3])
+
+<?php
+echo file_get_contents( "README/object_oriented_sample_code.py" ); ?>
+
     
 ### Output
 

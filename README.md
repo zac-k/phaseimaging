@@ -224,7 +224,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
                              specimen_file='C:/Users/zac/PycharmProjects/phaseimaging/specimen')
     
     # Initialise phase and beam
-    phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2]) #phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
+    phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2]) 
     beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
     
     # Project the electrostatic and magnetic phases

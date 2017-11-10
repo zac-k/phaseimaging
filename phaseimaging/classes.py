@@ -32,7 +32,7 @@ class Phase(Image):
         self.defocus = defocus
         self.k_kernel = None
         self.inverse_k_squared_kernel = None
-        self.image = np.zeros(resolution)
+        self.image = np.zeros(resolution, dtype=complex)
 
     def construct_kernels(self, reg_param=None):
         self.k_kernel = construct_k_kernel(self.resolution,self.width)
@@ -45,9 +45,17 @@ class Phase(Image):
         self.image += project_magnetic_phase(specimen.image, specimen.mhat, specimen.magnetisation, specimen.width, k_kernel=self.k_kernel, inverse_k_squared_kernel=self.inverse_k_squared_kernel)
 
     def retrieve_phase_tie(self, tfs, beam):
+        if tfs.len % 2 == 1:
+            image_in = tfs.intensities[int((tfs.len-1) / 2)].image
+        else:
+            image_in = None
+
+        # Determine defocus of retrieved phase
+        self.defocus = (tfs.defoci[0] + tfs.defoci[-1]) / 2
         self.image = retrieve_phase_tie(beam.wavelength,
                                         self.width,
-                                        tfs.derivative)
+                                        tfs.derivative,
+                                        image_in)
 
 class Wavefield(Image):
     def __init__(self, resolution, width, defocus=0):
@@ -77,6 +85,8 @@ class ThroughFocalSeries():
     def __init__(self, resolution, width, defoci, incident=1):
         self.intensities = []
         self.derivative = None
+        self.defoci = defoci
+        self.len = len(defoci)
         for defocus in defoci:
             self.intensities.append(Intensity(resolution, width, defocus, incident))
 

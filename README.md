@@ -1,7 +1,7 @@
 # phaseimaging
 
 ## Introduction
-This library provides a variety of functions related to phase imaging. Some of the included functions can be used to process experimental images, but I have also included functions to simulate these images. For experimental data, pre-processing will be required for meaningful results. In the future, I will add image registration and other preprocessing functions to enable perfoming all steps after image acquisition using only this library.
+This library provides a variety of functions related to phase imaging. Additionally, classes and their associated methods are included for if an object-oriented approach is preferred. Some of the included functions and methods can be used to process experimental images, but I have also included functions to simulate these images. For experimental data, pre-processing will be required for meaningful results. In the future, I will add image registration and other preprocessing functions to enable perfoming all steps after image acquisition using only this library.
 
 Note that although I have coded most of the functions to allow for rectangular images and specimen arrays, most of my testing has used square and cubic arrays, so there is a potential for bugs if you are using rectangular arrays. Please let me know if you experience any issues with any of the functions.
 
@@ -144,3 +144,73 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 |  |  | The output path of the file to be saved. The extension will determine the format (e.g., 'png', 'eps', etc.).  |
 |  | **limits** : *tuple*, *list*, *optional* |  |
 |  |  | Two element tuple or list containing the minimum and maximum values to be displayed. Intensities outside these limits will be clipped. If omitted, grayscale will be scaled according to the maximum and minimum values of the image array.
+
+## Sample implementations
+
+
+### Procedural style
+
+    import phaseimaging as phim    
+    
+    specimen = phim.import_specimen('C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+    phase_elec = phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
+    mass_mag = 80  # emu/g
+    density = 5.18  # g/cm^3
+    magnetisation = mass_mag * density * 1000  # A/m
+    phase_mag = phim.project_magnetic_phase(specimen,
+                                        (1,0,0),
+                               magnetisation,
+                                        (100e-9, 100e-9, 100e-9))
+    
+    phase = phase_mag + phase_elec
+    phim.plot_image(phase)
+    image_under = phim.transfer_image(-8e-6, 1.96e-12, (100e-9, 100e-9), phase)
+    image_over = phim.transfer_image(8e-6, 1.96e-12, (100e-9, 100e-9), phase)
+    
+    image_under = phim.add_noise(image_under, 1, 0.15)
+    image_over = phim.add_noise(image_over, 1, 0.15)
+    
+    derivative = phim.intensity_derivative(image_under, image_over, 8e-6)
+    
+    phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative)
+    phim.plot_image(image_under, limits=[0, 2])
+    phim.plot_image(image_over)
+    phim.plot_image(phase_ret, limits=[-3,3])
+
+### Object-oriented style
+
+    import phaseimaging as phim    
+    
+    mass_mag = 80  # emu/g
+    density = 5.18  # g/cm^3
+    magnetisation = mass_mag * density * 1000  # A/m
+    
+    specimen = phim.Specimen(width = (100e-9, 100e-9, 100e-9),
+                             mean_inner_potential=-17+1j,
+                             magnetisation=magnetisation,
+                             mhat=(1, 0, 0),
+                             specimen_file='C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+    phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2]) #phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
+    beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
+    phase.project_electrostatic(specimen, beam)
+    phase.project_magnetic(specimen, beam)
+    
+    
+    phim.plot_image(phase.image)
+    through_focal_series = phim.ThroughFocalSeries(phase.resolution, phase.width, [-8e-6, 0, 8e-6])
+    through_focal_series.transfer_images(phase, beam)
+    through_focal_series.add_noise(0.05)
+    through_focal_series.compute_derivative()
+    
+    image_under = through_focal_series.intensities[0]
+    image_over = through_focal_series.intensities[2]
+    
+    phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
+    phase_ret.retrieve_phase_tie(through_focal_series, beam)
+    phim.plot_image(image_under.image, limits=[0, 2])
+    phim.plot_image(image_over.image)
+    phim.plot_image(phase_ret.image, limits=[-3,3])
+    
+### Output
+
+![projected phase](https://github.com/zac-k/phaseimaging/README/phase.png)![under-focus image](https://github.com/zac-k/phaseimaging/README/image_under.png)![over-focus image](https://github.com/zac-k/phaseimaging/README/image_over.png)![retrieved phase](https://github.com/zac-k/phaseimaging/README/phase_ret.png)

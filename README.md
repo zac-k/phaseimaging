@@ -152,27 +152,41 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 
     import phaseimaging as phim    
     
+    # Import the specimen from file
     specimen = phim.import_specimen('C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+    
+    # Project the electrostatic phase
     phase_elec = phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
+    
+    # Set magnetisation strength
     mass_mag = 80  # emu/g
     density = 5.18  # g/cm^3
     magnetisation = mass_mag * density * 1000  # A/m
+    
+    # Project magnetic phase using a magnetisation vector in the x-direction
     phase_mag = phim.project_magnetic_phase(specimen,
                                         (1,0,0),
                                magnetisation,
                                         (100e-9, 100e-9, 100e-9))
-    
+    # Combine the two components of the phase
     phase = phase_mag + phase_elec
+    # Plot the total phase
     phim.plot_image(phase)
+    # Transfer to under- and over-focus planes
     image_under = phim.transfer_image(-8e-6, 1.96e-12, (100e-9, 100e-9), phase)
     image_over = phim.transfer_image(8e-6, 1.96e-12, (100e-9, 100e-9), phase)
     
+    # Add noise to images
     image_under = phim.add_noise(image_under, 1, 0.15)
     image_over = phim.add_noise(image_over, 1, 0.15)
     
+    # Compute the longitudinal derivative of the intensity
     derivative = phim.intensity_derivative(image_under, image_over, 8e-6)
     
+    # Retrieve the phase
     phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative)
+    
+    # Plot the intensity images and retrieved phase
     phim.plot_image(image_under, limits=[0, 2])
     phim.plot_image(image_over)
     phim.plot_image(phase_ret, limits=[-3,3])
@@ -181,32 +195,44 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 
     import phaseimaging as phim    
     
+    # Set magnetisation strength
     mass_mag = 80  # emu/g
     density = 5.18  # g/cm^3
     magnetisation = mass_mag * density * 1000  # A/m
     
+    # Build specimen
     specimen = phim.Specimen(width = (100e-9, 100e-9, 100e-9),
                              mean_inner_potential=-17+1j,
                              magnetisation=magnetisation,
                              mhat=(1, 0, 0),
                              specimen_file='C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+    
+    # Initialise phase and beam
     phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2]) #phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
     beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
+    
+    # Project the electrostatic and magnetic phases
     phase.project_electrostatic(specimen, beam)
-    phase.project_magnetic(specimen, beam)
+    phase.project_magnetic(specimen, beam)    
     
-    
+    # Plot phase
     phim.plot_image(phase.image)
+    
+    # Generate through-focal series of intensities and compute derivative
     through_focal_series = phim.ThroughFocalSeries(phase.resolution, phase.width, [-8e-6, 0, 8e-6])
     through_focal_series.transfer_images(phase, beam)
     through_focal_series.add_noise(0.05)
     through_focal_series.compute_derivative()
     
+    # Use aliases for intensities, for brevity
     image_under = through_focal_series.intensities[0]
     image_over = through_focal_series.intensities[2]
     
+    # Retrieve phase
     phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
     phase_ret.retrieve_phase_tie(through_focal_series, beam)
+    
+    # Plot intensities and retrieved phase
     phim.plot_image(image_under.image, limits=[0, 2])
     phim.plot_image(image_over.image)
     phim.plot_image(phase_ret.image, limits=[-3,3])
@@ -214,4 +240,4 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 ### Output
 
 
-![projected phase](README/phase.png)![under-focus image](README/image_under.png)![over-focus image](README/image_over.png)![retrieved phase](README/phase_ret.png)
+![projected phase](README/phase.png) ![under-focus image](README/image_under.png) ![over-focus image](README/image_over.png) ![retrieved phase](README/phase_ret.png)

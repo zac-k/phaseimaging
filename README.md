@@ -213,4 +213,4 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
 ### Output
 
-![projected phase](README/phase.png)![under-focus image](README/image_under.png)![over-focus image](README/image_over.png)![retrieved phase](README/phase_ret.png)
+![projected phase](README/phase.png =128x128)![under-focus image](README/image_under.png)![over-focus image](README/image_over.png)![retrieved phase](README/phase_ret.png)

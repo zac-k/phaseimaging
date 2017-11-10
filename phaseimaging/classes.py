@@ -15,10 +15,14 @@ class Intensity(Image):
         super().__init__(resolution, width)
         self.defocus = defocus
         self.incident = incident
-
+        self.image = None
+        self.shape = self.resolution
 
     def add_noise(self, sigma):
         self.image = add_noise(self.image, self.incident, sigma)
+
+    def transfer(self, phase, beam):
+        self.image = transfer_image(self.defocus, beam.wavelength, self.width, phase.image)
 
 
 class Phase(Image):
@@ -28,17 +32,22 @@ class Phase(Image):
         self.defocus = defocus
         self.k_kernel = None
         self.inverse_k_squared_kernel = None
+        self.image = np.zeros(resolution)
 
     def construct_kernels(self, reg_param=None):
         self.k_kernel = construct_k_kernel(self.resolution,self.width)
         self.inverse_k_squared_kernel = construct_inverse_k_squared_kernel(self.resolution, self.width, reg_param)
 
     def project_electrostatic(self, specimen, beam):
-        self.image = project_electrostatic_phase(specimen.image, beam.accel_volt, specimen.mean_inner_potential, specimen.width)
+        self.image += project_electrostatic_phase(specimen.image, beam.accel_volt, specimen.mean_inner_potential, specimen.width)
 
     def project_magnetic(self, specimen, beam):
-        self.image = project_magnetic_phase(specimen.image, specimen.mhat, specimen.magnetisation, specimen.width, k_kernel=self.k_kernel, inverse_k_squared_kernel=self.inverse_k_squared_kernel)
+        self.image += project_magnetic_phase(specimen.image, specimen.mhat, specimen.magnetisation, specimen.width, k_kernel=self.k_kernel, inverse_k_squared_kernel=self.inverse_k_squared_kernel)
 
+    def retrieve_phase_tie(self, tfs, beam):
+        self.image = retrieve_phase_tie(beam.wavelength,
+                                        self.width,
+                                        tfs.derivative)
 
 class Wavefield(Image):
     def __init__(self, resolution, width, defocus=0):
@@ -63,3 +72,24 @@ class Beam():
         self.wavelength = wavelength
         self.accel_volt = lambda_to_accel_volt(wavelength)
 
+
+class ThroughFocalSeries():
+    def __init__(self, resolution, width, defoci, incident=1):
+        self.intensities = []
+        self.derivative = None
+        for defocus in defoci:
+            self.intensities.append(Intensity(resolution, width, defocus, incident))
+
+    def transfer_images(self, phase, beam):
+        for intensity in self.intensities:
+            intensity.transfer(phase, beam)
+
+    def add_noise(self, sigma):
+        for intensity in self.intensities:
+            intensity.add_noise(sigma)
+
+    def compute_derivative(self):
+        # todo: this needs to be generalised
+        self. derivative = intensity_derivative(self.intensities[0].image,
+                                                self.intensities[-1].image,
+                                        (self.intensities[-1].defocus - self.intensities[0].defocus) / 2)

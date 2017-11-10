@@ -76,11 +76,10 @@ def construct_k_kernel(resolution, image_width):
             kernel[i, j, 1] = j0 * da[1]
     return kernel
 
-def retrieve_phase_tie(defocus,
+def retrieve_phase_tie(
                        wavelength,
                        image_width,
-                       image_under,
-                       image_over,
+                       intensity_derivative,
                        image_in=None,
                        image_intensity=1,
                        k_kernel=None,
@@ -93,11 +92,11 @@ def retrieve_phase_tie(defocus,
     the micrographs.
     :return:
     """
-    assert image_under.shape == image_over.shape
+
     if image_in is not None:
-        assert image_in.shape == image_over.shape
-    resolution = image_under.shape
-    assert len(image_under.shape) == 2
+        assert image_in.shape == intensity_derivative.shape
+    resolution = intensity_derivative.shape
+    assert len(intensity_derivative.shape) == 2
     assert len(image_width) == 2
 
 
@@ -107,15 +106,15 @@ def retrieve_phase_tie(defocus,
     if inverse_k_squared_kernel is None:
         inverse_k_squared_kernel = construct_inverse_k_squared_kernel(resolution, image_width, reg_param_tie)
 
-    derivative = intensity_derivative(image_under, image_over, defocus)
+
     if image_in is not None:
         regularised_inverse_intensity = image_in / (image_in * image_in + reg_param * reg_param)
         prefactor = (1. / wavelength) / (2. * PI)
         derivative_vec = np.zeros((resolution[0], resolution[1], 2), dtype=complex)
-        derivative_vec[:, :, 0] = convolve(derivative, k_kernel[:, :, 0] *
+        derivative_vec[:, :, 0] = convolve(intensity_derivative, k_kernel[:, :, 0] *
                                            inverse_k_squared_kernel
                                            ) * regularised_inverse_intensity
-        derivative_vec[:, :, 1] = convolve(derivative, k_kernel[:, :, 1] *
+        derivative_vec[:, :, 1] = convolve(intensity_derivative, k_kernel[:, :, 1] *
                                            inverse_k_squared_kernel
                                            ) * regularised_inverse_intensity
 
@@ -127,7 +126,7 @@ def retrieve_phase_tie(defocus,
     else:
         prefactor = (1. / wavelength) / (2 * PI * image_intensity)
 
-        filtered = convolve(derivative, inverse_k_squared_kernel)
+        filtered = convolve(intensity_derivative, inverse_k_squared_kernel)
         phase_retrieved = prefactor * filtered
     phase_retrieved = np.real(phase_retrieved)
     return phase_retrieved
@@ -142,7 +141,7 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
     assert len(resolution) == 3
     wavelength = accel_volt_to_lambda(accel_volt)
     dz = image_width[2] / resolution[2]
-    return np.sum(specimen, axis=2) * PI/(accel_volt * wavelength) * mean_inner_potential * dz
+    return np.real(np.sum(specimen, axis=2) * PI/(accel_volt * wavelength) * mean_inner_potential * dz)
 
 
 def project_magnetic_phase(specimen,

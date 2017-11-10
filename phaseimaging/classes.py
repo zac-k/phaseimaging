@@ -1,12 +1,17 @@
 import numpy as np
 from .utils import import_specimen
 from .utils import lambda_to_accel_volt
+import copy
 from .imaging import *
+from .plot import *
 
 class Image:
     def __init__(self, resolution, width, dtype=float):
         self.resolution = resolution
         self.width = width
+
+    def plot(self, limits=None):
+        plot_image(self.image, limits)
 
 
 class Intensity(Image):
@@ -89,6 +94,12 @@ class ThroughFocalSeries():
         self.len = len(defoci)
         for defocus in defoci:
             self.intensities.append(Intensity(resolution, width, defocus, incident))
+        spacing = copy.copy(defoci)
+        if self.len % 2 == 0:
+            spacing.insert((self.len - 1) / 2, (defoci[int(self.len / 2)] + defoci[int(self.len / 2 - 1)]) / 2)
+        for i in range(1, len(spacing)-1):
+            assert spacing[i] - spacing[i-1] == spacing[i+1] - spacing[i]
+
 
     def transfer_images(self, phase, beam):
         for intensity in self.intensities:

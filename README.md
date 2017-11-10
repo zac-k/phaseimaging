@@ -83,11 +83,29 @@ Generate in- or out-of-focus intensity or wavefield from exit phase.
 | Returns: | **image** : *ndarray* |  |
 |  |  | Computed image. The intensity or wavefield depending on the value of `is_image`. Default is intensity. |
 
+### intensity_derivative
+
+Compute longitudinal derivative of the intensity.
+
+    intensity_derivative(image_under, image_over, defocus)
+
+|  |  |  |
+|---|---|---|
+| Parameters: | **image_under** : *array-like* |   |
+|  |  | Intensity at the under-focus plane |
+|  | **image_over** : *array-like* |  |
+|  |  | Intensity at the over-focus plane |
+|  | **defocus** : *float* |  |
+|  |  | Defocus distance. This is the size of the defocus, which much be equal for both defocussed intensities |
+| Returns: | **derivative** : *ndarray* |  |
+|  |  | Computed derivative |
+
+
 ### retrieve_phase_tie
 
 Retrieves the exit phase from two or three out-of-focus images using the transport-of-intensity equation (TIE).
 
-    retrieve_phase_tie(defocus, wavelength, image_width, image_under, image_over, image_in=None, image_intensity=1, k_kernel=None, inverse_k_squared_kernel=None, reg_param=0.1, reg_param_tie=None)
+    retrieve_phase_tie(defocus, wavelength, image_width, intensity_derivative, image_in=None, image_intensity=1, k_kernel=None, inverse_k_squared_kernel=None, reg_param=0.1, reg_param_tie=None)
                        
                        
 |  |  |  |
@@ -98,10 +116,8 @@ Retrieves the exit phase from two or three out-of-focus images using the transpo
 |  |  | Wavelength of incident beam in metres. |
 |  | **image_width** : *tuple*, *list* |  |
 |  |  | Three element tuple or list containing the width of the specimen array in metres, in the x-, y-, and z-direction, respectively. |
-|  | **image_under** : *ndarray* |  |
-|  |  | Under-focus image. |
-|  | **image_over** : *ndarray* |  |
-|  |  | Over-focus image. |
+|  | **intensity_derivative** : *ndarray* |  |
+|  |  | Longitudinal derivative of the intensity at the image plane |
 |  | **image_in** : *ndarray*, *optional* |  |
 |  |  | In-focus image. If not included, the function will compute the phase from the two out-of-focus images. This requires that `image_intensity` be set to the appropriate value if it is not `1`|
 |  | **image_intensity** : *float* |  |

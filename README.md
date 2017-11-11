@@ -314,6 +314,8 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
     # Retrieve the phase
     phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative, image_in)
+    phase_ret = phim.remove_offset(phase_ret)
+    phim.normalised_rms_error(phase, phase_ret, display=True)
     
     # Plot the phases and intensity images
     phim.plot_image(phase, limits=[-3, 3])
@@ -363,6 +365,8 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     # Retrieve phase
     phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
     phase_ret.retrieve_phase_tie(through_focal_series, beam)
+    phase.remove_offset()
+    phase_ret.normalised_rms_error(phase, display=True)
     
     # Plot intensities and phases
     phase.plot(limits=[-3, 3])
@@ -374,5 +378,6 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     
 ### Output
 
-
+    Normalised RMS error =  28.1%
+    
 ![projected phase](README/phase.png) ![under-focus image](README/image_under.png) ![in-focus image](README/image_in.png) ![over-focus image](README/image_over.png) ![retrieved phase](README/phase_ret.png)

@@ -42,10 +42,3 @@ phim.plot_image(image_under, limits=[0, 2])
 phim.plot_image(image_in, limits=[0, 2])
 phim.plot_image(image_over, limits=[0, 2])
 phim.plot_image(phase_ret, limits=[-3, 3])
-
-
-# phim.save_image(phase, "C:/Users/zac/PycharmProjects/phaseimaging/README/phase.png", limits=[-3, 3])
-# phim.save_image(image_under, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_under.png", limits=[0, 2])
-# phim.save_image(image_in, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_in.png", limits=[0, 2])
-# phim.save_image(image_over, "C:/Users/zac/PycharmProjects/phaseimaging/README/image_over.png", limits=[0, 2])
-# phim.save_image(phase_ret, "C:/Users/zac/PycharmProjects/phaseimaging/README/phase_ret.png", limits=[-3, 3])

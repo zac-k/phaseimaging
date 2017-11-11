@@ -1,7 +1,7 @@
 import phaseimaging as phim
 
 # Import the specimen from file
-specimen = phim.import_specimen('C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+specimen = phim.import_specimen('specimen')
 
 # Project the electrostatic phase
 phase_elec = phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))

@@ -280,7 +280,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
     import phaseimaging as phim
     
     # Import the specimen from file
-    specimen = phim.import_specimen('specimen')
+    specimen = phim.import_specimen('../specimen')
     
     # Project the electrostatic phase
     phase_elec = phim.project_electrostatic_phase(specimen, 300e3, -17 + 1j, (100e-9, 100e-9, 100e-9))
@@ -336,7 +336,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
                              mean_inner_potential=-17+1j,
                              magnetisation=magnetisation,
                              mhat=(1, 0, 0),
-                             specimen_file='specimen')
+                             specimen_file='../specimen')
     
     # Initialise phase and beam
     phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])

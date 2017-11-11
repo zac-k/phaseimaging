@@ -66,6 +66,12 @@ class Phase(Image):
                                         tfs.derivative,
                                         image_in)
 
+    def remove_offset(self, rad=0.5):
+        self.image = remove_offset(self.image, rad)
+
+    def normalised_rms_error(self, exact, display=False):
+        return normalised_rms_error(exact.image, self.image, display=display)
+
 class Wavefield(Image):
     def __init__(self, resolution, width, defocus=0):
         assert len(resolution) == len(width) == 2

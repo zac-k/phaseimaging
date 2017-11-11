@@ -35,6 +35,8 @@ derivative = phim.intensity_derivative(image_under, image_over, 8e-6)
 
 # Retrieve the phase
 phase_ret = phim.retrieve_phase_tie(1.96e-12, (100e-9, 100e-9), derivative, image_in)
+phase_ret = phim.remove_offset(phase_ret)
+phim.normalised_rms_error(phase, phase_ret, display=True)
 
 # Plot the phases and intensity images
 phim.plot_image(phase, limits=[-3, 3])

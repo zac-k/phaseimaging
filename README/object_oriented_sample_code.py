@@ -10,7 +10,7 @@ specimen = phim.Specimen(width = (100e-9, 100e-9, 100e-9),
                          mean_inner_potential=-17+1j,
                          magnetisation=magnetisation,
                          mhat=(1, 0, 0),
-                         specimen_file='C:/Users/zac/PycharmProjects/phaseimaging/specimen')
+                         specimen_file='specimen')
 
 # Initialise phase and beam
 phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
@@ -37,6 +37,8 @@ image_over = through_focal_series.intensities[-1]
 # Retrieve phase
 phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
 phase_ret.retrieve_phase_tie(through_focal_series, beam)
+phase.remove_offset()
+phase_ret.normalised_rms_error(phase, display=True)
 
 # Plot intensities and phases
 phase.plot(limits=[-3, 3])

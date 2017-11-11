@@ -69,3 +69,30 @@ def import_specimen(specimen_file):
                 specimen[i, :, k] = f.readline().split()
             f.readline()
     return specimen
+
+
+def normalised_rms_error(exact, reconstructed, display=False):
+
+    """
+    Calculate normalised rms error between exact and reconstructed
+    arrays of arbitrary (but equal) dimensions
+    :param exact:
+    :param reconstructed:
+    :return:
+    """
+
+    assert np.shape(exact) == np.shape(reconstructed)
+    total = 0
+    norm = 0
+
+    len_flat = np.prod(np.shape(exact), dtype=int)
+    exact = exact.reshape(len_flat)
+    reconstructed = reconstructed.reshape(len_flat)
+
+    for i in range(len_flat):
+        total += (exact[i] - reconstructed[i]) * (exact[i] - reconstructed[i])
+        norm += exact[i] * exact[i]
+    error = float(np.real(np.sqrt(total / norm)))
+    if display:
+        print("Normalised RMS error = {0: .1%}".format(error))
+    return error

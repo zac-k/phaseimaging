@@ -5,6 +5,8 @@ This library provides a variety of functions related to phase imaging. Additiona
 
 Note that although I have coded most of the functions to allow for rectangular images and specimen arrays, most of my testing has used square and cubic arrays, so there is a potential for bugs if you are using rectangular arrays. Please let me know if you experience any issues with any of the functions.
 
+This README is a work in progress, so newer parts of the code may not always be documented here. Check the documentation in the source code if any explanation is missing from here, and if it's not there either, feel free to contact me.
+
 ## Functions
 ### import_specimen
 Generates a 3D numpy array from a specimen file. Input format is a text file (sans the file extension) with each block of rows/columns representing a 2D slice of the binary specimen mask. Each block is separated by an empty line. Specimen files can be generated using my [random-specimen-generator](https://github.com/zac-k/random-specimen-generator) repository. One specimen file is included in the present repository as an example.
@@ -274,6 +276,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 
 ## Sample implementations
 
+Here are two different implementations (procedural and object-oriented) of the same simulation and reconstruction process, to help you get started with using this library. These scripts load a specimen from the included specimen file, project the electrostatic and magnetic phases, simulate a through-focal series of intensities, retrieve the phase using the TIE, compare the exact and retrieved phases using a normalised root-mean-square error metric, and plot all the relevant images. They are also available in the [README directory](/README) of this repository, where they are updated more regularly, so it is advisable to use those directly instead of copying and pasting from here.
 
 ### Procedural style
 

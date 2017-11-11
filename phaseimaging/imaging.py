@@ -180,10 +180,10 @@ def apodise(image, rad_sup=0.5):
     output = np.where(X**2 + Y**2 < rad_sup**2, image, 0)
     return output
 
-def remove_offset(phase, rad=0.5):
+def remove_offset(phase, rad_inf=0.45, rad_sup=0.5):
     x = np.arange(int(-phase.shape[0] / 2), int(phase.shape[0] / 2))
     y = np.arange(int(-phase.shape[1] / 2), int(phase.shape[1] / 2))
     X, Y = np.meshgrid(x / phase.shape[0], y / phase.shape[1])
-    offset = phase[np.where(X ** 2 + Y ** 2 > rad ** 2)]
+    offset = phase[np.where(np.logical_and(rad_sup ** 2 > X ** 2 + Y ** 2, X ** 2 + Y ** 2 > rad_inf ** 2))]
     offset_avg = np.mean(offset)
     return phase - offset_avg

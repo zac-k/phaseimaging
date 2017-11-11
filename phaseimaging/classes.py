@@ -66,8 +66,8 @@ class Phase(Image):
                                         tfs.derivative,
                                         image_in)
 
-    def remove_offset(self, rad=0.5):
-        self.image = remove_offset(self.image, rad)
+    def remove_offset(self, rad_inf=0.45, rad_sup=0.5):
+        self.image = remove_offset(self.image, rad_inf=rad_inf, rad_sup=rad_sup)
 
     def normalised_rms_error(self, exact, display=False):
         return normalised_rms_error(exact.image, self.image, display=display)

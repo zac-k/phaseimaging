@@ -38,7 +38,6 @@ phase_ret = phim.remove_offset(phase_ret)
 phim.normalised_rms_error(phase, phase_ret, display=True)
 
 # Plot the phases and intensity images
-phim.plot_image(phase_offset, limits=[-3,3])
 phim.plot_image(phase, limits=[-3, 3])
 phim.plot_image(image_under, limits=[0, 2])
 phim.plot_image(image_in, limits=[0, 2])

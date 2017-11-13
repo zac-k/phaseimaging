@@ -13,3 +13,5 @@
 |---|---|
 | `plot([limits])` | Generates an on-screen image, from a central slice, using matplotlib. |
 | `apodise([rad_sup])` | Apodises the with a cylindrical window function of radius rad_sup (as a fraction of the array width). |
+
+[Back to Classes](classes.md)

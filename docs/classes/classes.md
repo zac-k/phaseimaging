@@ -1,3 +1,8 @@
+---
+title: This is my title
+layout: post
+---
+
 ## Classes
 
 * [Image](Image.md)

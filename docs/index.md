@@ -3,8 +3,8 @@
 # Table of contents
 
 * [Introduction](#introduction)
-* [Functions](functions)
-* [Classes](classes)
+* [Functions](functions/functions)
+* [Classes](classes/classes)
 
 ## Introduction
 

@@ -386,4 +386,4 @@ Here are two different implementations (procedural and object-oriented) of the s
 
     Normalised RMS error =  28.1%
     
-![projected phase](docs/phase.png) ![under-focus image](docs/image_under.png) ![in-focus image](docs/image_in.png) ![over-focus image](docs/image_over.png) ![retrieved phase](docs/phase_ret.png)
+![projected phase](docs/sample_implementations/phase.png) ![under-focus image](docs/sample_implementations/image_under.png) ![in-focus image](docs/sample_implementations/image_in.png) ![over-focus image](docs/sample_implementations/image_over.png) ![retrieved phase](docs/sample_implementations/phase_ret.png)

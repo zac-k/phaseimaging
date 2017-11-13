@@ -1,8 +1,8 @@
-### project_electrostatic_phase
+### phaseimaging.project_electrostatic_phase
 
 Generates a phase map by projecting the electrostatic potential of the specimen in the z-direction.
 
-    project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, image_width)
+    phaseimaging.project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, image_width)
 
 |  |  |  |
 |---|---|---|

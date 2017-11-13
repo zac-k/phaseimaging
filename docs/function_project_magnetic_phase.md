@@ -1,8 +1,8 @@
-### project_magnetic_phase
+### phaseimaging.project_magnetic_phase
 
 Generate a phase map by projecting the magnetic vector potential of the specimen in the z-direction.
 
-    project_magnetic_phase(specimen, mhat, magnetisation, image_width, k_kernel=None, inverse_k_squared_kernel=None)
+    phaseimaging.project_magnetic_phase(specimen, mhat, magnetisation, image_width, k_kernel=None, inverse_k_squared_kernel=None)
 
 |  |  |  |
 |---|---|---|

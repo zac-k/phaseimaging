@@ -13,3 +13,4 @@
 | `add_noise(sigma)` | Adds Poisson noise to every image in the series, using the fractional noise level sigma. |
 | `compute_derivative()` | Computes the longitudinal intensity derivative from the through-focal series. |
 
+[Back to Classes](classes.md)

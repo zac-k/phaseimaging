@@ -18,4 +18,4 @@
 | `project_magnetic(specimen, beam)` | Generates a phase map by projecting the magnetic vector potential of the specimen. This is added to the existing phase.|
 | `retrieve_phase_tie(tfs, beam)` | Retrieves the phase from a through-focal series of intensities. This replaces any pre-existing phase map.|
 
-  
+[Back to Classes](classes.md)

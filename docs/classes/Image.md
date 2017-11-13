@@ -10,3 +10,5 @@
 |---|---|
 | `plot([limits])` | Generates an on-screen image using matplotlib. |
 | `apodise([rad_sup])` | Apodises the image with a circular window function of radius rad_sup (as a fraction of the image width). |
+
+[Back to Classes](classes.md)

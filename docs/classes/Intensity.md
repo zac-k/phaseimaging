@@ -16,4 +16,4 @@
 | `add_noise(sigma)` | Adds Poisson noise to the images with a fractional noise level of sigma. |
 | `transfer(phase, beam)` | Generates an image by transferring the phase of the beam to an in-, or out-of-focus, plane. |
 
-   
+[Back to Classes](classes.md)   

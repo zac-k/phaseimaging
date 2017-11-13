@@ -1,7 +1,14 @@
 # phaseimaging
 
+# Table of contents
 
-
+* [Introduction](#introduction)
+* [Functions](#functions)
+    * [import_specimen](#import_specimen)
+    * [project_electrostatic_phase](#project_electrostatic_phase)
+    * [project_magnetic_phase](#project_magnetic_phase)
+    * [transfer_image](#transfer_image)
+* [Classes](#classes)
 
 ## Introduction
 This library provides a variety of functions related to phase imaging. Additionally, classes and their associated methods are included for if an object-oriented approach is preferred. Some of the included functions and methods can be used to process experimental images, but I have also included functions to simulate these images. For experimental data, pre-processing will be required for meaningful results. In the future, I will add image registration and other preprocessing functions to enable perfoming all steps after image acquisition using only this library.
@@ -279,7 +286,7 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 
 ## Sample implementations
 
-Here are two different implementations (procedural and object-oriented) of the same simulation and reconstruction process, to help you get started with using this library. These scripts load a specimen from the included specimen file, project the electrostatic and magnetic phases, simulate a through-focal series of intensities, retrieve the phase using the TIE, compare the exact and retrieved phases using a normalised root-mean-square error metric, and plot all the relevant images. They are also available in the [README directory](/docs) of this repository, where they are updated more regularly, so it is advisable to use those directly instead of copying and pasting from here.
+Here are two different implementations (procedural and object-oriented) of the same simulation and reconstruction process, to help you get started with using this library. These scripts load a specimen from the included specimen file, project the electrostatic and magnetic phases, simulate a through-focal series of intensities, retrieve the phase using the TIE, compare the exact and retrieved phases using a normalised root-mean-square error metric, and plot all the relevant images. They are also available in the [README directory](/README) of this repository, where they are updated more regularly, so it is advisable to use those directly instead of copying and pasting from here.
 
 ### Procedural style
 
@@ -386,4 +393,4 @@ Here are two different implementations (procedural and object-oriented) of the s
 
     Normalised RMS error =  28.1%
     
-![projected phase](docs/phase.png) ![under-focus image](docs/image_under.png) ![in-focus image](docs/image_in.png) ![over-focus image](docs/image_over.png) ![retrieved phase](docs/phase_ret.png)
+![projected phase](README/phase.png) ![under-focus image](README/image_under.png) ![in-focus image](README/image_in.png) ![over-focus image](README/image_over.png) ![retrieved phase](README/phase_ret.png)

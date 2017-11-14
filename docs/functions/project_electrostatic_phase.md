@@ -16,3 +16,5 @@ Generates a phase map by projecting the electrostatic potential of the specimen 
 |  |  | Three element tuple or list containing the width of the specimen array in metres, in the x-, y-, and z-direction, respectively. |
 | Returns: | **phase** : *ndarray* |  |
 |  |  | Real, two-dimensional numpy array. The computed phase map. |
+
+[Back to Functions](functions.md)

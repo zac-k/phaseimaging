@@ -14,3 +14,5 @@ Compute longitudinal derivative of the intensity.
 |  |  | Defocus distance. This is the size of the defocus, which much be equal for both defocussed intensities |
 | Returns: | **derivative** : *ndarray* |  |
 |  |  | Computed derivative |
+
+[Back to Functions](functions.md)

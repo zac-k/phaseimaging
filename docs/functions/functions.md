@@ -4,6 +4,7 @@
     * [project_magnetic_phase](project_magnetic_phase.md)
     * [transfer_image](transfer_image.md)
     * [intensity_derivative](intensity_derivative.md)
+    * [retrieve_phase_tie](retrieve_phase_tie.md)
 
 * Visualisation
     * [plot_image](plot_image.md)

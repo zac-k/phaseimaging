@@ -94,7 +94,7 @@ phase.project_magnetic(specimen, beam)
 # Generate through-focal series of intensities and compute derivative
 through_focal_series = phim.ThroughFocalSeries(phase.resolution, phase.width, [-8e-6, 0, 8e-6])
 through_focal_series.transfer_images(phase, beam)
-through_focal_series.add_noise(0.05)
+through_focal_series.add_noise(0.15)
 through_focal_series.compute_derivative()
 
 # Apodise images in through-focal series

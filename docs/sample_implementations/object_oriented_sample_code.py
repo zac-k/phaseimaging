@@ -10,7 +10,7 @@ specimen = phim.Specimen(width=(100e-9, 100e-9, 100e-9),
                          mean_inner_potential=-17+1j,
                          magnetisation=magnetisation,
                          mhat=(1, 0, 0),
-                         specimen_file='../specimen')
+                         specimen_file='../../specimen')
 
 # Initialise phase and beam
 phase = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])

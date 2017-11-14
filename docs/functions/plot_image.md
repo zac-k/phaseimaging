@@ -11,3 +11,4 @@ Plots a numpy array as an image, for visualising phase, intensity, etc.
 |  | **limits** : *tuple*, *list*, *optional* |  |
 |  |  | Two element tuple or list containing the minimum and maximum values to be displayed. Intensities outside these limits will be clipped. If omitted, grayscale will be scaled according to the maximum and minimum values of the image array.
 
+[Back to Functions](functions.md)

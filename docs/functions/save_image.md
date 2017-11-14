@@ -12,3 +12,5 @@ Similar to `plot_image`, but saves the visualisation in an image format rather t
 |  |  | The output path of the file to be saved. The extension will determine the format (e.g., 'png', 'eps', etc.).  |
 |  | **limits** : *tuple*, *list*, *optional* |  |
 |  |  | Two element tuple or list containing the minimum and maximum values to be displayed. Intensities outside these limits will be clipped. If omitted, grayscale will be scaled according to the maximum and minimum values of the image array.
+
+[Back to Functions](functions.md)

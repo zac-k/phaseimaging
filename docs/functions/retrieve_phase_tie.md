@@ -29,3 +29,5 @@ Retrieves the exit phase from two or three out-of-focus images using the transpo
 |  |  | Regularisation parameter for the division by k^2. Uses the default if not included. Has no effect if `inverse_k_squared_kernel` is provided. |
 | Returns: | **phase** : *ndarray* |  |
 |  |  | Computed phase. |
+
+[Back to Functions](functions.md)

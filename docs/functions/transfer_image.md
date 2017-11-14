@@ -18,3 +18,5 @@ Generate in- or out-of-focus intensity or wavefield from exit phase.
 |  |  | If true, return will be the intensity at the in- or out-of-focus plane. If false, return will be the complex wavefield at the in- or out-of-focus plane. Default is `True`. |
 | Returns: | **image** : *ndarray* |  |
 |  |  | Computed image. The intensity or wavefield depending on the value of `is_image`. Default is intensity. |
+
+[Back to Functions](functions.md)

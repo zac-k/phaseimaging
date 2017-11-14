@@ -6,7 +6,7 @@ density = 5.18  # g/cm^3
 magnetisation = mass_mag * density * 1000  # A/m
 
 # Build specimen
-specimen = phim.Specimen(width = (100e-9, 100e-9, 100e-9),
+specimen = phim.Specimen(width=(100e-9, 100e-9, 100e-9),
                          mean_inner_potential=-17+1j,
                          magnetisation=magnetisation,
                          mhat=(1, 0, 0),

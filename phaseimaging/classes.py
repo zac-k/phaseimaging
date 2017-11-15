@@ -18,6 +18,9 @@ class Image:
     def apodise(self, rad_sup=0.5):
         self.image = apodise(self.image, rad_sup)
 
+    def flip(self, axis=0):
+        self.image = np.flip(self.image, axis=axis)
+
 
 class Intensity(Image):
     def __init__(self, resolution, width, defocus, incident=1):
@@ -93,6 +96,11 @@ class Specimen(Image):
     def plot(self, limits=None):
         warnings.warn("Specimens can't be plotted in full; plotting slice only.")
         plot_image(self.image[:, :, int(self.resolution[2]/2 - 1)], limits)
+
+    def rotate(self, angle, axis=0):
+        axes = tuple(np.array((0, 1, 2))[np.where(np.array((0, 1, 2)) != axis)])
+        self.image = rotate(input=self.image, angle=angle, reshape=False, cval=0, axes=axes)
+        self.mhat = rotate_vector(self.mhat, angle=np.deg2rad(angle), axis=axis)
 
 class Beam():
     def __init__(self, wavelength):

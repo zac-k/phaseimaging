@@ -1,6 +1,7 @@
 import numpy as np
 from .utils import *
 from numpy import pi as PI
+from scipy.ndimage import rotate, zoom, shift
 import copy
 
 h = 6.63e-34  # Planck's constant
@@ -180,6 +181,7 @@ def apodise(image, rad_sup=0.5):
     output = np.where(X**2 + Y**2 < rad_sup**2, image, 0)
     return output
 
+
 def remove_offset(phase, rad_inf=0.45, rad_sup=0.5):
     x = np.arange(int(-phase.shape[0] / 2), int(phase.shape[0] / 2))
     y = np.arange(int(-phase.shape[1] / 2), int(phase.shape[1] / 2))
@@ -187,3 +189,10 @@ def remove_offset(phase, rad_inf=0.45, rad_sup=0.5):
     offset = phase[np.where(np.logical_and(rad_sup ** 2 > X ** 2 + Y ** 2, X ** 2 + Y ** 2 > rad_inf ** 2))]
     offset_avg = np.mean(offset)
     return phase - offset_avg
+
+
+def separate_phase_components(forward, reverse):
+    elec = (forward + reverse) / 2
+    mag = (forward - reverse) / 2
+
+    return elec, mag

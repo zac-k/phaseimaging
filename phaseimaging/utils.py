@@ -4,6 +4,7 @@ import numpy as np
 m0 = 9.11e-31  # Electron rest mass
 e = -1.6e-19  # Electron charge
 c = 3e8  # Speed of light
+PI = np.pi
 
 def convolve(image, kernel):
     """
@@ -96,3 +97,16 @@ def normalised_rms_error(exact, reconstructed, display=False):
     if display:
         print("Normalised RMS error = {0: .1%}".format(error))
     return error
+
+
+def rotate_vector(v, angle, axis=0):
+    cos = np.cos(angle)
+    sin = np.sin(angle)
+    if axis == 0:
+        R = np.array([[1, 0, 0], [0, cos, -sin], [0, sin, cos]])
+    elif axis == 1:
+        R = np.array([[cos, 0, sin], [0, 1, 0], [-sin, 0, cos]])
+    elif axis == 2:
+        R = np.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
+
+    return np.dot(v, R)

@@ -37,8 +37,30 @@ image_over = through_focal_series.intensities[-1]
 # Retrieve phase
 phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
 phase_ret.retrieve_phase_tie(through_focal_series, beam)
-phase.remove_offset()
+phase_ret.remove_offset()
 phase_ret.normalised_rms_error(phase, display=True)
+
+
+specimen.rotate(angle=180, axis=0)
+phase_reverse = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
+phase_reverse.project_electrostatic(specimen, beam)
+phase_reverse.project_magnetic(specimen, beam)
+through_focal_series_reverse = phim.ThroughFocalSeries(phase.resolution, phase.width, [-8e-6, 0, 8e-6])
+through_focal_series_reverse.transfer_images(phase, beam)
+through_focal_series_reverse.add_noise(0.15)
+through_focal_series_reverse.compute_derivative()
+
+phase_ret_reverse = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
+phase_ret_reverse.retrieve_phase_tie(through_focal_series, beam)
+phase_ret_reverse.remove_offset()
+phase_ret_reverse.normalised_rms_error(phase, display=True)
+
+phase_ret_reverse.flip(axis=0)
+phase_ret_elec = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
+phase_ret_mag = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2])
+phase_ret_elec.image, phase_ret_mag.image = phim.separate_phase_components(phase_ret.image, phase_ret_reverse.image)
+
+
 
 # Plot intensities and phases
 phase.plot(limits=[-3, 3])
@@ -46,3 +68,4 @@ image_under.plot(limits=[0, 2])
 image_in.plot(limits=[0, 2])
 image_over.plot(limits=[0, 2])
 phase_ret.plot(limits=[-3, 3])
+phase_ret_mag.plot(limits=[-3, 3])

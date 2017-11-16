@@ -14,13 +14,14 @@ class Image:
         width (list of float): Two/three element list giving the dimensions of the image in length units.
         image (ndarray): The image data.
         """
-    def __init__(self, resolution, width, dtype=float):
+    def __init__(self, resolution, width, dtype=float, name=None):
         self.resolution = resolution
         self.width = width
         self.image = np.zeros(resolution, dtype=dtype)
+        self.name = name
 
     def plot(self, limits=None):
-        plot_image(self.image, limits)
+        plot_image(self.image, limits, title=self.name)
 
     def apodise(self, rad_sup=0.5):
         self.image = apodise(self.image, rad_sup)
@@ -31,9 +32,9 @@ class Image:
 
 class Intensity(Image):
     """ Intensity measurement. """
-    def __init__(self, resolution, width, defocus, incident=1):
+    def __init__(self, resolution, width, defocus, incident=1, name=None):
         assert len(resolution) == len(width) == 2
-        super().__init__(resolution, width)
+        super().__init__(resolution, width, name=name)
         self.defocus = defocus
         self.incident = incident
         self.shape = self.resolution
@@ -46,9 +47,9 @@ class Intensity(Image):
 
 
 class Phase(Image):
-    def __init__(self, resolution, width, defocus=0):
+    def __init__(self, resolution, width, defocus=0, name=None):
         assert len(resolution) == len(width) == 2
-        super().__init__(resolution, width, dtype=complex)
+        super().__init__(resolution, width, dtype=complex, name=name)
         self.defocus = defocus
         self.k_kernel = None
         self.inverse_k_squared_kernel = None
@@ -81,17 +82,17 @@ class Phase(Image):
         self.image = remove_offset(self.image, rad_inf=rad_inf, rad_sup=rad_sup)
 
     def normalised_rms_error(self, exact, display=False):
-        return normalised_rms_error(exact.image, self.image, display=display)
+        return normalised_rms_error(exact.image, self.image, display=display, name=self.name)
 
 class Wavefield(Image):
-    def __init__(self, resolution, width, defocus=0):
+    def __init__(self, resolution, width, defocus=0, name=None):
         assert len(resolution) == len(width) == 2
-        super().__init__(resolution, width, dtype=complex)
+        super().__init__(resolution, width, dtype=complex, name=name)
         self.defocus = defocus
 
 
 class Specimen(Image):
-    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1), specimen_file=None):
+    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1), specimen_file=None, name=None):
 
         if specimen_file is not None:
             self.image = import_specimen(specimen_file)
@@ -100,10 +101,11 @@ class Specimen(Image):
         self.mean_inner_potential = mean_inner_potential
         self.magnetisation = magnetisation
         self.mhat = mhat
+        self.name=name
 
     def plot(self, limits=None):
         warnings.warn("Specimens can't be plotted in full; plotting slice only.")
-        plot_image(self.image[:, :, int(self.resolution[2]/2 - 1)], limits)
+        plot_image(self.image[:, :, int(self.resolution[2]/2 - 1)], limits, title=self.name)
 
     def rotate(self, angle, axis=0):
         axes = tuple(np.array((0, 1, 2))[np.where(np.array((0, 1, 2)) != axis)])

@@ -72,7 +72,7 @@ def import_specimen(specimen_file):
     return specimen
 
 
-def normalised_rms_error(exact, reconstructed, display=False):
+def normalised_rms_error(exact, reconstructed, display=False, name=None):
 
     """
     Calculate normalised rms error between exact and reconstructed
@@ -94,8 +94,12 @@ def normalised_rms_error(exact, reconstructed, display=False):
         total += (exact[i] - reconstructed[i]) * (exact[i] - reconstructed[i])
         norm += exact[i] * exact[i]
     error = float(np.real(np.sqrt(total / norm)))
+    if name is not None:
+        text = "in " + name + " "
+    else:
+        text = ""
     if display:
-        print("Normalised RMS error = {0: .1%}".format(error))
+        print("Normalised RMS error " + text + "= {0: .1%}".format(error))
     return error
 
 

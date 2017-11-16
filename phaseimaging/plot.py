@@ -3,7 +3,7 @@ import numpy as np
 import warnings
 
 
-def plot_image(image, limits=None):
+def plot_image(image, limits=None, title=None):
 
     if np.iscomplexobj(image):
         warnings.warn('Image is complex; only displaying real part')
@@ -14,6 +14,9 @@ def plot_image(image, limits=None):
         vmin = limits[0]
         vmax = limits[1]
         plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
+    if title is None:
+        title = ""
+    plt.title(title)
     plt.show(block=True)
 
 

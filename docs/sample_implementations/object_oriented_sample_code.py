@@ -21,6 +21,7 @@ beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
 # of the magnetic component for computing the error later.
 phase.project_magnetic(specimen, beam)
 phase_mag = copy.deepcopy(phase)
+phase_mag.name = "Exact Magnetic Phase"
 phase.project_electrostatic(specimen, beam)
 
 # Set noise level and defoci.
@@ -41,8 +42,11 @@ phase_ret = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width
 phase_ret.retrieve_phase_tie(through_focal_series, beam)
 phase_ret.remove_offset()
 
-# Rotate the specimen for extracting the magnetic phase.
-specimen.rotate(angle=180, axis=0)
+# Rotate the specimen for extracting the magnetic phase. Include
+# a small error in the x and y rotations. The z rotation can
+# be adjusted after projection if desired.
+specimen.rotate(angle=178, axis=0)
+specimen.rotate(angle=1, axis=1)
 
 # Project the phases in the reverse direction.
 phase_reverse = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2], name="Total Reverse Phase")

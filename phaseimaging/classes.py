@@ -7,6 +7,13 @@ from .plot import *
 
 
 class Image:
+    """ Generic parent class for images.
+
+    Attributes:
+        resolution (list of int): Two/three element list giving the dimensions of the image in pixels/voxels.
+        width (list of float): Two/three element list giving the dimensions of the image in length units.
+        image (ndarray): The image data.
+        """
     def __init__(self, resolution, width, dtype=float):
         self.resolution = resolution
         self.width = width
@@ -23,6 +30,7 @@ class Image:
 
 
 class Intensity(Image):
+    """ Intensity measurement. """
     def __init__(self, resolution, width, defocus, incident=1):
         assert len(resolution) == len(width) == 2
         super().__init__(resolution, width)

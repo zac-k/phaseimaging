@@ -194,5 +194,4 @@ def remove_offset(phase, rad_inf=0.45, rad_sup=0.5):
 def separate_phase_components(forward, reverse):
     elec = (forward + reverse) / 2
     mag = (forward - reverse) / 2
-
     return elec, mag

@@ -10,5 +10,5 @@ setup(name='phaseimaging',
       packages=['phaseimaging'],
       install_requires=['numpy',
                         'matplotlib',
-                        'warnings',
+                        'warnings>=0.0.dev0',
                         'copy'])

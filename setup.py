@@ -9,5 +9,4 @@ setup(name='phaseimaging',
       license='GPLv3',
       packages=['phaseimaging'],
       install_requires=['numpy',
-                        'matplotlib',
-                        'copy'])
+                        'matplotlib'])

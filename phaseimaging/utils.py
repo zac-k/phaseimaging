@@ -75,6 +75,21 @@ def import_specimen(specimen_file):
     return specimen
 
 
+def import_moment(moment_file):
+    """
+
+    Args:
+        momen_file (str): Path of specimen file.
+    returns:
+        ndarray:
+    """
+    if specimen_file[-4:] == '.npy':
+        moment = np.load(specimen_file)
+    else:
+        Exception("Only .npy moment files allowed!")
+    return moment
+
+
 def normalised_rms_error(exact, reconstructed, display=False, name=None):
 
     """

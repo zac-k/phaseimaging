@@ -92,10 +92,12 @@ class Wavefield(Image):
 
 
 class Specimen(Image):
-    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1), specimen_file=None, name=None):
+    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1), specimen_file=None, moment_file=None, name=None):
 
         if specimen_file is not None:
             self.image = import_specimen(specimen_file)
+        if moment_file is not None:
+            self.moment = import_moment(moment_file)
         self.resolution = self.image.shape
         self.width = width
         self.mean_inner_potential = mean_inner_potential

@@ -59,16 +59,19 @@ def import_specimen(specimen_file):
         the specimen exists, and a value of 0
         indicates a voxel where it does not.
     """
-    with open(specimen_file, 'r') as f:
-        # todo: modify the next two lines to allow reading rectangular specimens
-        specimen_size = int(len(f.readline().split()))
-        resolution = (specimen_size, specimen_size, specimen_size)
-        f.seek(0)
-        specimen = np.zeros((specimen_size, specimen_size, specimen_size))
-        for k in range(resolution[0]):
-            for i in range(resolution[1]):
-                specimen[i, :, k] = f.readline().split()
-            f.readline()
+    if specimen_file[-4:] == '.npy':
+        specimen = np.load(specimen_file)
+    else:
+        with open(specimen_file, 'r') as f:
+            # txt format specimens must be cubic
+            specimen_size = int(len(f.readline().split()))
+            resolution = (specimen_size, specimen_size, specimen_size)
+            f.seek(0)
+            specimen = np.zeros((specimen_size, specimen_size, specimen_size))
+            for k in range(resolution[0]):
+                for i in range(resolution[1]):
+                    specimen[i, :, k] = f.readline().split()
+                f.readline()
     return specimen
 
 

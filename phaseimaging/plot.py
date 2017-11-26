@@ -1,3 +1,4 @@
+from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
@@ -14,6 +15,29 @@ def plot_image(image, limits=None, title=None):
         vmin = limits[0]
         vmax = limits[1]
         plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
+    if title is None:
+        title = ""
+    plt.title(title)
+    plt.show(block=True)
+
+
+def plot_quiver(vec_field, width=(1, 1, 1), title=None):
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    # Get resolution
+    res = np.shape(vec_field)[0:3]
+    print(res)
+
+    # Make the voxel grid
+    x, y, z = np.meshgrid(np.arange(-width[0] / 2, width[0] / 2, width[0] / res[0]),
+                          np.arange(-width[1] / 2, width[1] / 2, width[1] / res[1]),
+                          np.arange(-width[2] / 2, width[2] / 2, width[2] / res[2]))
+
+    ax.quiver(x, y, z, vec_field[:, :, :, 0], vec_field[:, :, :, 1], vec_field[:, :, :, 2],
+              length=0.05 * np.linalg.norm(width))
+
     if title is None:
         title = ""
     plt.title(title)

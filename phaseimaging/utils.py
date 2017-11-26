@@ -83,8 +83,8 @@ def import_moment(moment_file):
     returns:
         ndarray:
     """
-    if specimen_file[-4:] == '.npy':
-        moment = np.load(specimen_file)
+    if moment_file[-4:] == '.npy':
+        moment = np.load(moment_file)
     else:
         Exception("Only .npy moment files allowed!")
     return moment

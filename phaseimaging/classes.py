@@ -63,7 +63,13 @@ class Phase(Image):
         self.image += project_electrostatic_phase(specimen.image, beam.accel_volt, specimen.mean_inner_potential, specimen.width)
 
     def project_magnetic(self, specimen, beam):
-        self.image += project_magnetic_phase(specimen.image, specimen.mhat, specimen.magnetisation, specimen.width, k_kernel=self.k_kernel, inverse_k_squared_kernel=self.inverse_k_squared_kernel)
+        self.image += project_magnetic_phase(specimen.image,
+                                             specimen.magnetisation,
+                                             specimen.width,
+                                             mhat=specimen.mhat,
+                                             moment=specimen.moment,
+                                             k_kernel=self.k_kernel,
+                                             inverse_k_squared_kernel=self.inverse_k_squared_kernel)
 
     def retrieve_phase_tie(self, tfs, beam):
         if tfs.len % 2 == 1:
@@ -92,8 +98,12 @@ class Wavefield(Image):
 
 
 class Specimen(Image):
-    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1), specimen_file=None, moment_file=None, name=None):
-
+    def __init__(self, width, mean_inner_potential=0, magnetisation=0, mhat=(0, 0, 1),
+                 specimen_file=None,
+                 moment_file=None,
+                 name=None):
+        self.image = None
+        self.moment = None
         if specimen_file is not None:
             self.image = import_specimen(specimen_file)
         if moment_file is not None:
@@ -103,7 +113,7 @@ class Specimen(Image):
         self.mean_inner_potential = mean_inner_potential
         self.magnetisation = magnetisation
         self.mhat = mhat
-        self.name=name
+        self.name = name
 
     def plot(self, limits=None):
         warnings.warn("Specimens can't be plotted in full; plotting slice only.")
@@ -111,8 +121,14 @@ class Specimen(Image):
 
     def rotate(self, angle, axis=0):
         axes = tuple(np.array((0, 1, 2))[np.where(np.array((0, 1, 2)) != axis)])
-        self.image = rotate(input=self.image, angle=angle, reshape=False, cval=0, axes=axes)
-        self.mhat = rotate_vector(self.mhat, angle=np.deg2rad(angle), axis=axis)
+        if self.image is not None:
+            self.image = rotate(input=self.image, angle=angle, reshape=False, cval=0, axes=axes)
+        if self.mhat is not None:
+            self.mhat = rotate_vector(self.mhat, angle=np.deg2rad(angle), axis=axis)
+        if self.moment is not None:
+            self.moment = rotate(input=self.moment, angle=angle, reshape=False, cval=0, axes=axes)
+            self.moment = rotate_vector(self.moment, angle=np.deg2rad(angle), axis=axis)
+
 
 class Beam():
     def __init__(self, wavelength):

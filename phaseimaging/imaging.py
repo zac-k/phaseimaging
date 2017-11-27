@@ -1,6 +1,7 @@
 import numpy as np
 from .utils import *
 from numpy import pi as PI
+import warnings
 from scipy.ndimage import rotate, zoom, shift
 import copy
 
@@ -147,20 +148,35 @@ def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, imag
 
 
 def project_magnetic_phase(specimen,
-                           mhat,
                            magnetisation,
                            image_width,
+                           mhat=None,
+                           moment=None,
                            k_kernel=None,
                            inverse_k_squared_kernel=None):
     resolution = specimen.shape
     assert len(image_width) == 3
+    assert mhat is not None or moment is not None
+
     if k_kernel is None:
         k_kernel = construct_k_kernel(resolution, image_width)
     if inverse_k_squared_kernel is None:
         inverse_k_squared_kernel = construct_inverse_k_squared_kernel(resolution[0:2], image_width[0:2])
-    mhat = mhat / np.linalg.norm(mhat)
 
-    mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]
+    if moment is not None:
+        if mhat is not None:
+            warnings.warn("moment array is being used for magnetisation---ignoring mhat vector")
+        moment_ = fft.fftn(moment, axes=[0, 1, 2])
+        moment_ = fft.fftshift(moment_, axes=[0, 1, 2])
+        # todo: get this working
+        moment_ = moment_[:, :, int(resolution[2] / 2), :]
+        mhatcrossk_z = np.cross(moment_, k_kernel[:, :])[:, :, 2]
+    else:
+        mhat = mhat / np.linalg.norm(mhat)
+        mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]
+
+
+    print(np.shape(mhatcrossk_z))
     D0 = fft.fftshift(fft.fftn(specimen))[:, :, int(resolution[2]/2)] * (image_width[2] / resolution[2])
 
     phase = (1j * PI * mu0 * magnetisation / phi0) * D0 * inverse_k_squared_kernel * mhatcrossk_z

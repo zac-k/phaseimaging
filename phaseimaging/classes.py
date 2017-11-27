@@ -108,6 +108,8 @@ class Specimen(Image):
             self.image = import_specimen(specimen_file)
         if moment_file is not None:
             self.moment = import_moment(moment_file)
+            if self.image is not None:
+                self.mask_moment()
         self.resolution = self.image.shape
         self.width = width
         self.mean_inner_potential = mean_inner_potential
@@ -128,6 +130,9 @@ class Specimen(Image):
         if self.moment is not None:
             self.moment = rotate(input=self.moment, angle=angle, reshape=False, cval=0, axes=axes)
             self.moment = rotate_vector(self.moment, angle=np.deg2rad(angle), axis=axis)
+
+    def mask_moment(self):
+        self.moment = self.moment * self.image
 
 
 class Beam():

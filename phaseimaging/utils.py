@@ -60,7 +60,8 @@ def import_specimen(specimen_file):
         indicates a voxel where it does not.
     """
     if specimen_file[-4:] == '.npy':
-        specimen = np.load(specimen_file)
+        # Load specimen from numpy file and convert boolean to float
+        specimen = np.load(specimen_file).astype('float64')
     else:
         with open(specimen_file, 'r') as f:
             # txt format specimens must be cubic

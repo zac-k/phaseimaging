@@ -166,18 +166,15 @@ def project_magnetic_phase(specimen,
     if moment is not None:
         if mhat is not None:
             warnings.warn("moment array is being used for magnetisation---ignoring mhat vector")
-        moment_ = fft.fftn(moment, axes=[0, 1, 2])
+        moment_ = fft.fftn(moment, axes=[0, 1, 2]) * (image_width[2] / resolution[2])
         moment_ = fft.fftshift(moment_, axes=[0, 1, 2])
-        # todo: get this working
         moment_ = moment_[:, :, int(resolution[2] / 2), :]
-        mhatcrossk_z = np.cross(moment_, k_kernel[:, :])[:, :, 2]
+        mhatcrossk_z = np.cross(moment_, k_kernel)[:, :, 2]
+        D0 = 1
     else:
         mhat = mhat / np.linalg.norm(mhat)
         mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]
-
-
-    print(np.shape(mhatcrossk_z))
-    D0 = fft.fftshift(fft.fftn(specimen))[:, :, int(resolution[2]/2)] * (image_width[2] / resolution[2])
+        D0 = fft.fftshift(fft.fftn(specimen))[:, :, int(resolution[2] / 2)] * (image_width[2] / resolution[2])
 
     phase = (1j * PI * mu0 * magnetisation / phi0) * D0 * inverse_k_squared_kernel * mhatcrossk_z
     phase = fft.ifftshift(phase)

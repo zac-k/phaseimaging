@@ -28,15 +28,14 @@ def plot_quiver(vec_field, width=(1, 1, 1), title=None):
 
     # Get resolution
     res = np.shape(vec_field)[0:3]
-    print(res)
 
     # Make the voxel grid
     x, y, z = np.meshgrid(np.arange(-width[0] / 2, width[0] / 2, width[0] / res[0]),
                           np.arange(-width[1] / 2, width[1] / 2, width[1] / res[1]),
                           np.arange(-width[2] / 2, width[2] / 2, width[2] / res[2]))
-
+    # todo: fix scaling in quiver
     ax.quiver(x, y, z, vec_field[:, :, :, 0], vec_field[:, :, :, 1], vec_field[:, :, :, 2],
-              length=0.05 * np.linalg.norm(width))
+              length=0.01 * np.linalg.norm(width), normalize=True)
 
     if title is None:
         title = ""

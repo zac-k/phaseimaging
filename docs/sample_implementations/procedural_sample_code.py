@@ -20,7 +20,7 @@ density = 5.18  # g/cm^3
 magnetisation = mass_mag * density * 1000  # A/m
 
 # Project magnetic phase using a magnetisation vector in the x-direction
-phase_mag = phim.project_magnetic_phase(specimen, mhat, magnetisation, specimen_array_dimensions)
+phase_mag = phim.project_magnetic_phase(specimen, magnetisation, specimen_array_dimensions, mhat=mhat)
 
 # Combine the two components of the phase
 phase = phase_mag + phase_elec

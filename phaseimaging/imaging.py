@@ -154,6 +154,28 @@ def project_magnetic_phase(specimen,
                            moment=None,
                            k_kernel=None,
                            inverse_k_squared_kernel=None):
+    """
+    Computes the magnetic phase from a moment distribution file or uniform magnetisation direction.
+
+    Args:
+        specimen (ndarray): Specimen mask file.
+        magnetisation (float): Volume magnetisation strength.
+        image_width (sequence of floats): Dimensions of image in units of length.
+        mhat (sequence of floats|optional): Unit vector in direction of magnetisation (for
+                                            uniform magnetisations. Ignored if moment is not
+                                            None. Default is None.
+        moment (ndarray): Three-dimentional array of vectors representing the magnetisation direction
+                          as a function of space. Mask must have already been applied. Specimen array
+                          has no effect if moment is not None. Values less than or greater than unity
+                          in this array will affect the strength of the field in those voxels. Default
+                          is None.
+        k_kernel (ndarray): Two dimensional array of k-vectors. Will be constructed if not supplied
+                            (default is None).
+        inverse_k_squared_kernel (ndarray): Regularised inverse k-squared kernel. Will be constructed
+                                            if not supplied (default is None).
+    Returns:
+        phase (ndarray): Phase map representing the magnetic phase shift.
+    """
     resolution = specimen.shape
     assert len(image_width) == 3
     assert mhat is not None or moment is not None
@@ -170,6 +192,8 @@ def project_magnetic_phase(specimen,
         moment_ = fft.fftshift(moment_, axes=[0, 1, 2])
         moment_ = moment_[:, :, int(resolution[2] / 2), :]
         mhatcrossk_z = np.cross(moment_, k_kernel)[:, :, 2]
+
+        # Set shape function to unity. Moment array must be pre-masked using specimen.mask_moment()
         D0 = 1
     else:
         mhat = mhat / np.linalg.norm(mhat)

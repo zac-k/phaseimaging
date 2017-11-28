@@ -176,15 +176,20 @@ def project_magnetic_phase(specimen,
     Returns:
         phase (ndarray): Phase map representing the magnetic phase shift.
     """
+    # Set the resolution from the specimen.
     resolution = specimen.shape
     assert len(image_width) == 3
+
+    # Make sure there is an argument that describes the magnetisation.
     assert mhat is not None or moment is not None
 
+    # Construct the kernels if they are not supplied.
     if k_kernel is None:
         k_kernel = construct_k_kernel(resolution, image_width)
     if inverse_k_squared_kernel is None:
         inverse_k_squared_kernel = construct_inverse_k_squared_kernel(resolution[0:2], image_width[0:2])
 
+    # Use the moment array, if it is given, to compute the phase.
     if moment is not None:
         if mhat is not None:
             warnings.warn("moment array is being used for magnetisation---ignoring mhat vector")
@@ -196,10 +201,12 @@ def project_magnetic_phase(specimen,
         # Set shape function to unity. Moment array must be pre-masked using specimen.mask_moment()
         D0 = 1
     else:
+        # Use the magnetisation direction (mhat) if no moment array is given.
         mhat = mhat / np.linalg.norm(mhat)
         mhatcrossk_z = np.cross(mhat, k_kernel)[:, :, 2]
         D0 = fft.fftshift(fft.fftn(specimen))[:, :, int(resolution[2] / 2)] * (image_width[2] / resolution[2])
 
+    # Finish computing the magnetic phase.
     phase = (1j * PI * mu0 * magnetisation / phi0) * D0 * inverse_k_squared_kernel * mhatcrossk_z
     phase = fft.ifftshift(phase)
     return np.real(fft.ifft2(phase))

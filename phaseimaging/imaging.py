@@ -213,7 +213,17 @@ def project_magnetic_phase(specimen,
 
 
 def add_noise(image, i_in, sigma):
+    """
+    Incorporate Poisson noise into an image.
 
+    Args:
+        image (ndarray): The image to add noise to.
+        i_in (float): The incident intensity. Typically unity.
+        sigma (float): The fractional noise level in the incident beam; e.g., for 5% noise,
+                       set sigma=0.05.
+    Returns:
+        output (ndarray): The noisy image.
+    """
     return np.where(image >= 0, np.random.poisson(image / (sigma*sigma * i_in)) * (sigma*sigma * i_in), 0)
 
 

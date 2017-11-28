@@ -85,7 +85,6 @@ image_in = through_focal_series.intensities[1]
 image_over = through_focal_series.intensities[-1]
 
 # Plot intensities and phases
-
 image_under.plot(limits=[0, 2])
 image_in.plot(limits=[0, 2])
 image_over.plot(limits=[0, 2])

@@ -12,6 +12,7 @@
 | Methods |  |  
 |---|---|
 | `plot([limits])` | Generates an on-screen image, from a central slice, using matplotlib. |
-| `apodise([rad_sup])` | Apodises the with a cylindrical window function of radius rad_sup (as a fraction of the array width). |
+| `apodise([rad_sup])` | Apodises the array with a cylindrical window function of radius rad_sup (as a fraction of the array width). |
+| `mask_moment()` | Sets the magnetisation direction vector to `(0, 0, 0)` outside the specimen. This is performed automatically during initialisation.
 
 [Back to Classes](classes.md)

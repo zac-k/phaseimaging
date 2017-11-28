@@ -132,7 +132,18 @@ class Specimen(Image):
             self.moment = rotate_vector(self.moment, angle=np.deg2rad(angle), axis=axis)
 
     def mask_moment(self):
+        assert self.image is not None
         self.moment = self.moment * self.image[..., np.newaxis]
+
+    @property
+    def moment(self):
+        return self.moment
+
+    @moment.setter
+    def moment(self, moment):
+        self.moment = moment
+        if self.image is not None:
+            self.mask_moment()
 
 
 class Beam():

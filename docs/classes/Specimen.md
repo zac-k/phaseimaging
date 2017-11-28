@@ -8,6 +8,7 @@
 | `mean_inner_potential` | Mean inner potential of the specimen. Complex values can be used to simulate attenuation. |
 | `magnetisation` | Volume magnetisation. |
 | `mhat` | Vector pointing in the magnetisation direction. The length of this vector has no effect. |
+| `moment` | Three dimensional array of vectors representing the magnetisation direction at all points in space. This is used for arbitrary magnetisation configurations. `mhat` will be ignored if `moment` is not `None`. The magnitude of the vectors is in units of `specimen.magnetisation`.
 
 | Methods |  |  
 |---|---|

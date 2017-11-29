@@ -355,7 +355,7 @@ def project_magnetic_phase(specimen,
 
 def add_noise(image, i_in, sigma):
     """
-    Incorporate Poisson noise into an image.
+    Incorporate Poisson noise into an image (see https://doi.org/10.1103/PhysRevA.90.023859).
 
     Args:
         image (ndarray): The image to add noise to.

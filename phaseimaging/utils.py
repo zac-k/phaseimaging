@@ -114,7 +114,7 @@ def import_moment(moment_file):
     Load a moment distribution array from file.
 
     Args:
-        moment_file (str): Path of specimen file.
+        moment_file (str): Path of moment file.
     Returns:
         moment (ndarray): Three-dimensional vector field describing the magnetisation direction
                           and magnitude at each point in space.

@@ -296,13 +296,12 @@ class Specimen(Image):
             name (string): Name of the specimen. Used for titling plots, etc.
         """
         self.image = None
-        self.moment = None
+        self._moment = None
         if specimen_file is not None:
             self.image = import_specimen(specimen_file)
         if moment_file is not None:
             self.moment = import_moment(moment_file)
-            if self.image is not None:
-                self._mask_moment()
+
         self.resolution = self.image.shape
         self.width = width
         self.mean_inner_potential = mean_inner_potential
@@ -366,16 +365,15 @@ class Specimen(Image):
             None
         """
         assert self.image is not None
-        self.moment = self.moment * self.image[..., np.newaxis]
+        self._moment = self.moment * self.image[..., np.newaxis]
 
     @property
     def moment(self):
-        return self.moment
+        return self._moment
 
     @moment.setter
     def moment(self, moment):
-
-        self.moment = moment
+        self._moment = moment
         if self.image is not None:
             self._mask_moment()
 

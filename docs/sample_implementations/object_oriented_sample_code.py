@@ -19,7 +19,7 @@ beam = phim.Beam(phim.accel_volt_to_lambda(300e3))
 
 # Project the electrostatic and magnetic phases. Store a deep copy
 # of the magnetic component for computing the error later.
-phase.project_magnetic(specimen, beam)
+phase.project_magnetic(specimen)
 phase_mag = copy.deepcopy(phase)
 phase_mag.name = "Exact Magnetic Phase"
 phase.project_electrostatic(specimen, beam)
@@ -51,7 +51,7 @@ specimen.rotate(angle=1, axis=1)
 # Project the phases in the reverse direction.
 phase_reverse = phim.Phase(resolution=specimen.resolution[0:2], width=specimen.width[0:2], name="Total Reverse Phase")
 phase_reverse.project_electrostatic(specimen, beam)
-phase_reverse.project_magnetic(specimen, beam)
+phase_reverse.project_magnetic(specimen)
 
 # Generate the through-focal series in the reverse direction and compute the derivative.
 through_focal_series_reverse = phim.ThroughFocalSeries(phase.resolution, phase.width, defoci=defoci)

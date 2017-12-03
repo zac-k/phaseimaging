@@ -188,3 +188,19 @@ def rotate_vector(v, angle, axis=0):
         R = np.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
 
     return np.dot(v, R)
+
+def unit_vector_from_axis(axis):
+    """
+    Generates a unit vector pointing in the positive direction along a given axis.
+
+    Args:
+        axis (int): 0, 1, or 2, representing the axis direction.
+
+    Returns:
+        unit_vector (tuple of ints): The unit vector pointing in the positive direction
+                                     of the axis.
+    """
+    assert axis in range(3)
+    unit_vector = [0, 0, 0]
+    unit_vector[axis] = 1
+    return unit_vector

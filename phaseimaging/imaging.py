@@ -257,7 +257,10 @@ def retrieve_phase_tie(
     return phase_retrieved
 
 
-def project_electrostatic_phase(specimen, accel_volt, mean_inner_potential, image_width):
+def project_electrostatic_phase(specimen,
+                                accel_volt,
+                                mean_inner_potential,
+                                image_width):
     """
     Computes the image plane phase shift of the specimen.
 
@@ -442,3 +445,26 @@ def separate_phase_components(forward, reverse):
     elec = (forward + reverse) / 2
     mag = (forward - reverse) / 2
     return elec, mag
+
+
+def solenoidal_moment(resolution, axis=2):
+    # todo: I don't think I got this working yet. Test it, and fix it if needed.
+    """
+    Generate a solenoidal (rotational) moment distribution.
+
+    Args:
+        resolution (sequence of ints): The dimensions of the moment array in pixels.
+        axis (int|optional): Axis about which the vectors circulate.
+
+    Returns:
+        moment (ndarray): The solenoidal moment distribution.
+    """
+    vhat = unit_vector_from_axis(axis)
+    _resolution = list(resolution)
+    del _resolution[axis]
+
+    radial = construct_k_kernel(_resolution, (1, 1))
+
+    moment = np.cross(vhat, radial)
+
+    return moment

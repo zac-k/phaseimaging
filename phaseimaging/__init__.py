@@ -4,5 +4,6 @@ from .plot import save_image, plot_image
 from .imaging import transfer_image, project_magnetic_phase, add_noise, apodise, remove_offset
 from .imaging import project_electrostatic_phase, retrieve_phase_tie
 from .classes import *
+from .multislice import build_atom_locations, project_phase_ms
 
 

@@ -61,10 +61,8 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
         loc_final = loc
 
         atom_in_range = True
-        for i in range(3):
-            if loc_final[i] <= 0 or loc_final[i] >= aA:
-                atom_in_range = False
-                break
+        if np.any(loc_final <= 0) or np.any(loc_final >= aA):
+            atom_in_range = False
         if atom_in_range:
             z_number = np.append(z_number, location_list[atoms_read][3])
             x = np.append(x, loc_final[0])
@@ -73,8 +71,8 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
 
             wobble = np.append(wobble, 0.078)
             num_atoms += 1
-    print("There are a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 5  # Slice thickness in Angstrom
+    print("There is a total of {0} atoms in the specimen".format(num_atoms))
+    deltaz = 100  # Slice thickness in Angstrom
     wave = np.zeros(list((M, M)), dtype=complex)  # Incident beam
     trans = np.zeros(list((M, M)), dtype=complex)  # Transmission function
     temp = np.zeros(list((M, M)), dtype=complex)  # Scratch wavefunction
@@ -109,7 +107,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     print("Bandwidth limited to a real space resolution of {0} Angstroms".format(1 / k2max))
     k2max = k2max * k2max
 
-    k2, window = freqn(res, M, aA, k2max)
+    k2, window = freqn(res, aA, k2max)
     propx = np.zeros(M, dtype=complex)
     propy = np.zeros(M, dtype=complex)
 
@@ -152,7 +150,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
                 trans = trlayer(x[istart:num_atoms],
                                      y[istart:num_atoms],
                                      z_number[istart:num_atoms],
-                                     na, aA, trans, window, fparams)
+                                     na, aA, trans, window, fparams, wavelength)
 
                 print("Transmit wave...")
                 wave = transmit_wave(wave, trans)
@@ -341,13 +339,13 @@ def sort_by_z(x, y, z, z_number):
     a = np.vstack((x, y, z, z_number))
     return a[:, a[2, :].argsort()]
 
-def trlayer(x, y, z_number, na, aA, trans, window, fparams):
+def trlayer(x, y, z_number, na, aA, trans, window, fparams, wavelength):
 
     res = np.shape(trans)
     M = res[0]  # todo: make work with rectangular arrays
     rmax = 3  # Maximum atomic radius in Angstrom
     rmax2 = rmax * rmax
-    scale = sigma()  # in 1 / (volt-Anstroms)
+    scale = sigma(wavelength)  # in 1 / (volt-Anstroms)
     scalex = aA / M
     scaley = aA / M
 
@@ -645,13 +643,12 @@ def sigma(wavelength):
     :return:
     """
 
-    energy = lambda_to_accel_volt(wavelength)
+    # wavelength is in A, so convert to m before calculating energy.
+    energy = lambda_to_accel_volt(wavelength * 1e-10)
 
     emass = 510.99906  # Electron mass in keV
-    wl = wavelength * 1e10  # Convert wavelength to Angstroms
-    energy = energy
     x = (emass + energy) / (2 * emass + energy)
-    return 2 * PI * x / (wl * energy)
+    return 2 * PI * x / (wavelength * energy)
 
 
 def propagate_wave(wave, propx, propy, k2, k2max):

@@ -369,7 +369,12 @@ def add_noise(image, i_in, sigma):
     Returns:
         output (ndarray): The noisy image.
     """
-    return np.where(image >= 0, np.random.poisson(image / (sigma*sigma * i_in)) * (sigma*sigma * i_in), 0)
+    if sigma > 0:
+        output = np.where(image >= 0, np.random.poisson(image /
+                                                        (sigma*sigma * i_in)) * (sigma*sigma * i_in), 0)
+    else:
+        output = image
+    return output
 
 
 def apodise(image, rad_sup=0.5):

@@ -41,38 +41,47 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     loc = np.zeros(3)
     loc_final = np.zeros(3)
     num_atoms_total = len(location_list)
-    z_number = np.array([])
-    x = np.array([])
-    y = np.array([])
-    z = np.array([])
 
-    wobble = np.array([])
-
-    num_atoms = 0
     print("Reading in Atoms...")
-    prog_bar = pyprind.ProgBar(num_atoms_total)
-    for atoms_read in range(num_atoms_total):
-        prog_bar.update()
-        loc = np.array(location_list[atoms_read][:3])
-        r = rotation_matrix(axis, angle)
+    location_array = np.array(location_list)
+    atoms_in_range = np.logical_or(np.any(location_array[:,:3] <= 0, axis=1),
+                                   np.any(location_array[:,:3] >= aA, axis=1))
+    num_atoms = np.sum(atoms_in_range)
+
+    print(location_array[:100,:])
+    x = np.squeeze(location_array[np.where(atoms_in_range), 0])
+    y = np.squeeze(location_array[np.where(atoms_in_range), 1])
+    z = np.squeeze(location_array[np.where(atoms_in_range), 2])
+    z_number = np.squeeze(location_array[np.where(atoms_in_range), 3])
+    wobble = np.ones(len(atoms_in_range))*0.078
+
+    # for atoms_read in range(num_atoms_total):
+        # prog_bar.update()
+        # loc = np.array(location_list[atoms_read][:3])
+        # r = rotation_matrix(axis, angle)
 
         # TODO: Remove the second line and check that rotation is working
-        loc_final = np.dot(r, loc - rotation_center) + rotation_center
-        loc_final = loc
+        # loc_final = np.dot(r, loc - rotation_center) + rotation_center
+        # loc_final = loc
+        #
+        # atom_in_range = True
+        # if np.any(loc_final <= 0) or np.any(loc_final >= aA):
+        #     atom_in_range = False
+        # if atom_in_range:
+        #     z_number = np.append(z_number, location_list[atoms_read][3])
+        #     x = np.append(x, loc_final[0])
+        #     y = np.append(y, loc_final[1])
+        #     z = np.append(z, loc_final[2])
+        #
+        #
+        #     num_atoms += 1
+    print(x[:100])
+    print(y[:100])
+    print(z[:100])
+    print(z_number[:0])
 
-        atom_in_range = True
-        if np.any(loc_final <= 0) or np.any(loc_final >= aA):
-            atom_in_range = False
-        if atom_in_range:
-            z_number = np.append(z_number, location_list[atoms_read][3])
-            x = np.append(x, loc_final[0])
-            y = np.append(y, loc_final[1])
-            z = np.append(z, loc_final[2])
-
-            wobble = np.append(wobble, 0.078)
-            num_atoms += 1
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 100  # Slice thickness in Angstrom
+    deltaz = 5  # Slice thickness in Angstrom
     wave = np.zeros(list((M, M)), dtype=complex)  # Incident beam
     trans = np.zeros(list((M, M)), dtype=complex)  # Transmission function
     temp = np.zeros(list((M, M)), dtype=complex)  # Scratch wavefunction
@@ -86,6 +95,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     xmin = xmax = x[0]
     ymin = ymax = y[0]
     zmin = zmax = z[0]
+    print(np.shape(x))
     for i in range(num_atoms):
         if x[i] < xmin:
             xmin = x[i]

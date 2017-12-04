@@ -44,8 +44,11 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
 
     print("Reading in Atoms...")
     location_array = np.array(location_list)
-    atoms_in_range = np.logical_or(np.any(location_array[:,:3] <= 0, axis=1),
-                                   np.any(location_array[:,:3] >= aA, axis=1))
+    # TODO: Implement rotation (the following two commented lines are the old code for it).
+    # r = rotation_matrix(axis, angle)
+    # loc_final = np.dot(r, loc - rotation_center) + rotation_center
+    atoms_in_range = np.logical_and(np.all(location_array[:, :3] >= 0, axis=1),
+                                    np.all(location_array[:, :3] <= aA, axis=1))
     num_atoms = np.sum(atoms_in_range)
 
     print(location_array[:100,:])
@@ -55,30 +58,13 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     z_number = np.squeeze(location_array[np.where(atoms_in_range), 3])
     wobble = np.ones(len(atoms_in_range))*0.078
 
-    # for atoms_read in range(num_atoms_total):
-        # prog_bar.update()
-        # loc = np.array(location_list[atoms_read][:3])
-        # r = rotation_matrix(axis, angle)
 
-        # TODO: Remove the second line and check that rotation is working
-        # loc_final = np.dot(r, loc - rotation_center) + rotation_center
-        # loc_final = loc
-        #
-        # atom_in_range = True
-        # if np.any(loc_final <= 0) or np.any(loc_final >= aA):
-        #     atom_in_range = False
-        # if atom_in_range:
-        #     z_number = np.append(z_number, location_list[atoms_read][3])
-        #     x = np.append(x, loc_final[0])
-        #     y = np.append(y, loc_final[1])
-        #     z = np.append(z, loc_final[2])
-        #
-        #
-        #     num_atoms += 1
-    print(x[:100])
-    print(y[:100])
-    print(z[:100])
-    print(z_number[:0])
+
+
+    print(x[:10])
+    print(y[:10])
+    print(z[:10])
+    print(z_number[:10])
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
     deltaz = 5  # Slice thickness in Angstrom

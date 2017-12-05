@@ -69,6 +69,8 @@ def _set_transfer_function(defocus, wavelength, resolution=None, image_width=Non
 
 
 def transfer_image(defocus, wavelength, image_width, phase=None, wavefield=None, is_image=True):
+    # todo: change this function so it only transfers wavefields, and put the phase-to-wave and
+    # todo: wave to intensity in different functions. Will also need changes to classes.
     """
     Uses the defocus and exact_phase (at the image plane) to produce an out of focus
     image or wavefield.

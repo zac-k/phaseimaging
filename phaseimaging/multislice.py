@@ -23,8 +23,8 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     http://people.ccmr.cornell.edu/~kirkland/cdownloads.html
     :return:
     """
-    # Convert list of atoms to numpy array for consistency
-    location_list = atom_locations
+
+
     # todo: make width and res work with rectangular arrays
     width = width[0]
     aA = width * 1e10
@@ -40,15 +40,16 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
 
     loc = np.zeros(3)
     loc_final = np.zeros(3)
-    num_atoms_total = len(location_list)
+    num_atoms_total = len(atom_locations)
 
     print("Reading in Atoms...")
-    location_array = np.array(location_list)
+    location_array = np.array(atom_locations)
     # TODO: Implement rotation (the following two commented lines are the old code for it).
     # r = rotation_matrix(axis, angle)
     # loc_final = np.dot(r, loc - rotation_center) + rotation_center
     atoms_in_range = np.logical_and(np.all(location_array[:, :3] >= 0, axis=1),
                                     np.all(location_array[:, :3] <= aA, axis=1))
+
     num_atoms = np.sum(atoms_in_range)
 
     print(location_array[:100,:])
@@ -61,10 +62,22 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
 
 
 
-    print(x[:10])
-    print(y[:10])
-    print(z[:10])
-    print(z_number[:10])
+    # print(x[:10])
+    # print(y[:10])
+    # print(z[:10])
+    # print(z_number[:10])
+    # print(num_atoms_total)
+    # print(num_atoms)
+    # proj = np.zeros((M, M))
+    # for ind in range(num_atoms):
+    #     i = int(M * x[ind] / aA)
+    #     j = int(M * y[ind] / aA)
+    #     proj[i, j] = 1
+    # from .plot import plot_image
+    # plot_image(proj)
+    # return
+
+
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
     deltaz = 5  # Slice thickness in Angstrom
@@ -175,7 +188,6 @@ def build_atom_locations(specimen, width):
 
     # Length of each side of cubic region containing specimen
     aA = width[0] * 1e10  # todo: make work with rectangular arrays
-
     # Number of unit cells in each dimension
     Nc = ([int(aA/Sc[0]), int(aA/Sc[1]), int(aA/Sc[2])])
 
@@ -272,23 +284,44 @@ def build_atom_locations(specimen, width):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
                 for element in range(0, elements):
-                    for atom in range(0, atomic_numbers[element][1]):
+                    atom = np.arange(0, atomic_numbers[element][1])
 
-                        loc[0] = -aA / 2 + float(t1) * Sc[0] + \
-                                 atom_locations[atom + element * atomic_numbers[0][1]][0]
-                        loc[1] = -aA / 2 + float(t1) * Sc[1] + \
-                                 atom_locations[atom + element * atomic_numbers[0][1]][1]
-                        loc[2] = -aA / 2 + float(t1) * Sc[2] + \
-                                 atom_locations[atom + element * atomic_numbers[0][1]][2]
+                    # The way this is written ( * atomic_numbers[0][1]) only works for
+                    # elements == 2.
+                    atom_index = atom + element * atomic_numbers[0][1]
+                    for ind in range(0, atomic_numbers[element][1]):
+                        loc[0] = float(t1) * Sc[0] - aA / 2 + \
+                                 atom_locations[atom_index[ind]][0]
+                        loc[1] = float(t2) * Sc[1] - aA / 2 + \
+                                 atom_locations[atom_index[ind]][1]
+                        loc[2] = float(t3) * Sc[2] - aA / 2 + \
+                                 atom_locations[atom_index[ind]][2]
                         i = int(np.floor(loc[0] * M / aA + M / 2))
                         j = int(np.floor(loc[1] * M / aA + M / 2))
                         k = int(np.floor(loc[2] * M / aA + M / 2))
 
                         if specimen[i, j, k] != 0:
                             location_list.append(loc + [atomic_numbers[element][0]])
+
                             atoms_read += 1
 
         progress_bar.update()
+
+    # location_list = np.array(location_list)
+    # #print(location_list[np.where(location_list[:, 0] > 0)])
+    # proj = np.zeros((M, M))
+    # #print(len(location_list))
+    # for ind in range(len(location_list)):
+    #     i = int(M * location_list[ind][0] / aA)
+    #     j = int(M * location_list[ind][1] / aA)
+    #     # print(M)
+    #     # print(i)
+    #     # print(location_list[ind][0])
+    #     # print(aA)
+    #     proj[i, j] = 1
+    # from .plot import plot_image
+    # plot_image(proj)
+    # return
 
     return location_list
 

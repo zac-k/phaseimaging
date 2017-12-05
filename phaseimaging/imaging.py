@@ -68,7 +68,7 @@ def _set_transfer_function(defocus, wavelength, resolution=None, image_width=Non
     return np.exp(1j * (PI * defocus * wavelength * k_squared_kernel))
 
 
-def transfer_image(defocus, wavelength, image_width, phase, is_image=True):
+def transfer_image(defocus, wavelength, image_width, phase=None, wavefield=None, is_image=True):
     """
     Uses the defocus and exact_phase (at the image plane) to produce an out of focus
     image or wavefield.
@@ -88,14 +88,21 @@ def transfer_image(defocus, wavelength, image_width, phase, is_image=True):
                                                           of defocus.
     """
 
+    # Make sure exactly one of the input types is provided.
+    # The != is effectively an xor here.
+    assert (phase is not None) != (wavefield is not None)
+
+    # Compute the complex wavefield at the image plane.
+    if phase is not None:
+        wavefunction = np.exp(1j*phase)
+    elif wavefield is not None:
+        wavefunction = wavefield
+
     # Set the transfer function.
     transfer_function = _set_transfer_function(defocus,
                                                wavelength,
-                                               resolution=phase.shape,
+                                               resolution=wavefunction.shape,
                                                image_width=image_width)
-
-    # Compute the complex wavefield at the image plane.
-    wavefunction = np.exp(1j*phase)
 
     # Transfer the wavefield to the plane of defocus.
     wavefunction = convolve(wavefunction, transfer_function)

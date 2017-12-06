@@ -53,9 +53,11 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     num_atoms = np.sum(atoms_in_range)
 
     print(location_array[:100,:])
-    x = np.squeeze(location_array[np.where(atoms_in_range), 0])
-    y = np.squeeze(location_array[np.where(atoms_in_range), 1])
-    z = np.squeeze(location_array[np.where(atoms_in_range), 2])
+    print(atoms_in_range)
+    print(sum(atoms_in_range))
+    x = np.squeeze(location_array[np.where(atoms_in_range), 0] - aA / 2)
+    y = np.squeeze(location_array[np.where(atoms_in_range), 1] - aA / 2)
+    z = np.squeeze(location_array[np.where(atoms_in_range), 2] - aA / 2)
     z_number = np.squeeze(location_array[np.where(atoms_in_range), 3])
     wobble = np.ones(len(atoms_in_range))*0.078
 
@@ -184,7 +186,7 @@ def build_atom_locations(specimen, width):
     """
 
     # Size of unit cell in angstroms
-    Sc = [8.32, 8.32, 8.32]
+    Sc = np.array([8.32, 8.32, 8.32])
 
     # Length of each side of cubic region containing specimen
     aA = width[0] * 1e10  # todo: make work with rectangular arrays
@@ -199,10 +201,10 @@ def build_atom_locations(specimen, width):
     elements = 2
     n_atoms = Nc[0] * Nc[1] * Nc[2] * atoms_in_cell
 
-    loc = [0, 0, 0]
+    loc = np.zeros(3)
 
     # Each pair is the atomic number followed by the number of atoms of this element
-    atomic_numbers = [[26, 24], [8, 32]]
+    atomic_numbers = np.array([[26, 24], [8, 32]])
 
     # Array containing the atom locations within a cell. The crystal structure here
     # is magnetite.
@@ -276,52 +278,57 @@ def build_atom_locations(specimen, width):
                         [0.875 * Sc[0], 0.125 * Sc[1], 0.125 * Sc[2]],
                         [0.875 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
                         ]
-
-    location_list = []
+    atom_locations = np.array(atom_locations)
+    location_list = np.array([])
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     for t1 in range(0, Nc[0]):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
+                t = np.array([t1, t2, t3])
                 for element in range(0, elements):
                     atom = np.arange(0, atomic_numbers[element][1])
 
                     # The way this is written ( * atomic_numbers[0][1]) only works for
                     # elements == 2.
-                    atom_index = atom + element * atomic_numbers[0][1]
-                    for ind in range(0, atomic_numbers[element][1]):
-                        loc[0] = float(t1) * Sc[0] - aA / 2 + \
-                                 atom_locations[atom_index[ind]][0]
-                        loc[1] = float(t2) * Sc[1] - aA / 2 + \
-                                 atom_locations[atom_index[ind]][1]
-                        loc[2] = float(t3) * Sc[2] - aA / 2 + \
-                                 atom_locations[atom_index[ind]][2]
-                        i = int(np.floor(loc[0] * M / aA + M / 2))
-                        j = int(np.floor(loc[1] * M / aA + M / 2))
-                        k = int(np.floor(loc[2] * M / aA + M / 2))
+                    atom_index = atom + element * atomic_numbers[0, 1]
+                    index = np.arange(atomic_numbers[element, 1])
+                    loc = t * Sc + atom_locations
 
-                        if specimen[i, j, k] != 0:
-                            location_list.append(loc + [atomic_numbers[element][0]])
+                    ijk = np.floor(loc * M / aA)
+                    ijk = ijk.astype(int)
+                    specimen_coords = np.transpose(np.where(specimen != 0))
+                    for ind in range(0, atomic_numbers[element, 1]):
+                        if ijk[ind] in specimen_coords:
+
+                            # Create row
+                            row = np.append(loc[ind], atomic_numbers[element, 0])
+
+                            location_list = list(location_list)
+                            location_list.append(list(row))
+                            location_list = np.array(location_list)
 
                             atoms_read += 1
 
         progress_bar.update()
 
-    # location_list = np.array(location_list)
-    # #print(location_list[np.where(location_list[:, 0] > 0)])
-    # proj = np.zeros((M, M))
-    # #print(len(location_list))
-    # for ind in range(len(location_list)):
-    #     i = int(M * location_list[ind][0] / aA)
-    #     j = int(M * location_list[ind][1] / aA)
-    #     # print(M)
-    #     # print(i)
-    #     # print(location_list[ind][0])
-    #     # print(aA)
-    #     proj[i, j] = 1
-    # from .plot import plot_image
-    # plot_image(proj)
-    # return
+
+
+    location_list = np.array(location_list)
+    #print(location_list[np.where(location_list[:, 0] > 0)])
+    proj = np.zeros((M, M))
+    #print(len(location_list))
+    for ind in range(len(location_list)):
+        i = int(M * location_list[ind][0] / aA)
+        j = int(M * location_list[ind][1] / aA)
+        # print(M)
+        # print(i)
+        # print(location_list[ind][0])
+        # print(aA)
+        proj[i, j] = 1
+    from .plot import plot_image
+    plot_image(proj)
+    return
 
     return location_list
 

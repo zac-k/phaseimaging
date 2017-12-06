@@ -299,10 +299,11 @@ def build_atom_locations(specimen, width):
                     ijk = np.floor(loc * M / aA)
                     ijk = ijk.astype(int)
                     specimen_coords = np.transpose(np.where(specimen != 0))
-                    loc_in_spec = vec_isin(ijk, specimen_coords)
-                    ijk_in_spec = ijk[loc_in_spec]
-                    z_nums = np.array([np.ones(len(ijk))*atomic_numbers[element, 0]])
-                    loc_list = np.concatenate([ijk, z_nums.T], axis=1)
+                    loc_is_in_spec = vec_isin(ijk, specimen_coords)
+                    ijk_in_spec = ijk[loc_is_in_spec]
+                    loc_in_spec = loc[loc_is_in_spec]
+                    z_nums = np.array([np.ones(len(loc_in_spec))*atomic_numbers[element, 0]])
+                    loc_list = np.concatenate([loc_in_spec, z_nums.T], axis=1)
                     if location_list is None:
                         location_list = copy.copy(loc_list)
                     else:

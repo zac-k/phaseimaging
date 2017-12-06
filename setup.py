@@ -8,5 +8,5 @@ setup(name='phaseimaging',
       author_email='zachary.kemp@monash.edu',
       license='GPLv3',
       packages=['phaseimaging'],
-      install_requires=['numpy',
+      install_requires=['numpy>=1.13.1',
                         'matplotlib'])

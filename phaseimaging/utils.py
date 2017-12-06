@@ -204,3 +204,24 @@ def unit_vector_from_axis(axis):
     unit_vector = [0, 0, 0]
     unit_vector[axis] = 1
     return unit_vector
+
+def vec_isin(a, b):
+    """
+    Given two NxN arrays, determine which rows of a exist somewhere in b.
+
+    Args:
+        a (ndarray): Array of elements.
+        b (ndarray): Test array; the vectors against which to test each row of a.
+
+    Returns:
+        vec_isin (ndarray of bools): Vector of length equal to the number of rows in a,
+                                     equal to True if that row is in b, or False if it
+                                     is not.
+    """
+    # Convert each row of both arrays to strings
+    a_strings = [','.join(x.astype(str)) for x in a]
+    b_strings = [','.join(x.astype(str)) for x in b]
+
+    # Return boolean vector of which strings from a are in b.
+    return np.isin(a_strings, b_strings)
+

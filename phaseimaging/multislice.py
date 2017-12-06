@@ -4,7 +4,8 @@ import pyprind
 import sys
 from numpy import fft
 from .utils import lambda_to_accel_volt
-
+from .utils import vec_isin
+import copy
 
 npmax = 12
 nzmin = 1
@@ -43,7 +44,6 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
     num_atoms_total = len(atom_locations)
 
     print("Reading in Atoms...")
-    location_array = np.array(atom_locations)
     # TODO: Implement rotation (the following two commented lines are the old code for it).
     # r = rotation_matrix(axis, angle)
     # loc_final = np.dot(r, loc - rotation_center) + rotation_center
@@ -280,7 +280,7 @@ def build_atom_locations(specimen, width):
                         [0.875 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
                         ]
     atom_locations = np.array(atom_locations)
-    location_list = []
+    location_list = None
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     for t1 in range(0, Nc[0]):
@@ -299,30 +299,20 @@ def build_atom_locations(specimen, width):
                     ijk = np.floor(loc * M / aA)
                     ijk = ijk.astype(int)
                     specimen_coords = np.transpose(np.where(specimen != 0))
-                    for ind in range(0, atomic_numbers[element, 1]):
-                        if ijk[ind] in specimen_coords:
-
-                            # Create row
-                            row = np.append(loc[ind], atomic_numbers[element, 0])
-
-
-                            location_list.append(list(row))
-
-
-                            atoms_read += 1
-                #print(t)
+                    loc_in_spec = vec_isin(ijk, specimen_coords)
+                    ijk_in_spec = ijk[loc_in_spec]
+                    z_nums = np.array([np.ones(len(ijk))*atomic_numbers[element, 0]])
+                    loc_list = np.concatenate([ijk, z_nums.T], axis=1)
+                    if location_list is None:
+                        location_list = copy.copy(loc_list)
+                    else:
+                        location_list = np.vstack([location_list, loc_list])
         progress_bar.update()
 
-
-
-    #location_list = np.array(location_list)
-    #print(location_list[np.where(location_list[:, 0] > 0)])
     proj = np.zeros((M, M))
-    print(max(max(location_list)))
-    #print(len(location_list))
     for ind in range(len(location_list)):
-        i = int(M * location_list[ind][0] / aA)
-        j = int(M * location_list[ind][1] / aA)
+        i = int(M * location_list[ind, 0] / aA)
+        j = int(M * location_list[ind, 1] / aA)
         # print(M)
         #print(i)
         # print(location_list[ind][0])
@@ -330,7 +320,7 @@ def build_atom_locations(specimen, width):
         proj[i, j] = 1
     from .plot import plot_image
     plot_image(proj)
-    return
+    #return
 
     return location_list
 

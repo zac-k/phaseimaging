@@ -15,7 +15,7 @@ nl = 3
 ng = 3
 SMALL = 1e-25
 
-def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
+def project_phase_ms(axis, angle, wavelength, width, res, location_array):
     """
     Multislice simulation method
     Note that this code is based on the theory described in
@@ -41,7 +41,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, atom_locations):
 
     loc = np.zeros(3)
     loc_final = np.zeros(3)
-    num_atoms_total = len(atom_locations)
+    num_atoms_total = len(location_array)
 
     print("Reading in Atoms...")
     # TODO: Implement rotation (the following two commented lines are the old code for it).
@@ -308,6 +308,7 @@ def build_atom_locations(specimen, width):
                     else:
                         location_list = np.vstack([location_list, loc_list])
         progress_bar.update()
+    print(location_list)
 
     proj = np.zeros((M, M))
     for ind in range(len(location_list)):

@@ -198,7 +198,6 @@ def build_atom_locations(specimen, width):
 
     atoms_read = 0
     atoms_in_cell = 56
-    elements = 2
     n_atoms = Nc[0] * Nc[1] * Nc[2] * atoms_in_cell
 
     loc = np.zeros(3)
@@ -206,80 +205,80 @@ def build_atom_locations(specimen, width):
     # Each pair is the atomic number followed by the number of atoms of this element
     atomic_numbers = np.array([[26, 24], [8, 32]])
 
-    # Array containing the atom locations within a cell. The crystal structure here
-    # is magnetite.
-    # todo: bring Sc outside to make this easier to follow.
-    atom_locations = [
-                        # Fe2 +
-                        [0.000 * Sc[0], 0.000 * Sc[1], 0.000 * Sc[2]],
-                        [0.500 * Sc[0], 0.500 * Sc[1], 0.000 * Sc[2]],
-                        [0.000 * Sc[0], 0.500 * Sc[1], 0.500 * Sc[2]],
-                        [0.500 * Sc[0], 0.000 * Sc[1], 0.500 * Sc[2]],
 
-                        [0.250 * Sc[0], 0.250 * Sc[1], 0.250 * Sc[2]],
-                        [0.250 * Sc[0], 0.750 * Sc[1], 0.750 * Sc[2]],
-                        [0.750 * Sc[0], 0.750 * Sc[1], 0.250 * Sc[2]],
-                        [0.750 * Sc[0], 0.250 * Sc[1], 0.750 * Sc[2]],
+
+    # Array containing the atom fractional locations within a unit cell. The crystal structure here
+    # is magnetite.
+    atom_locations = np.array([
+                        # Fe2 +
+                        [0.000, 0.000, 0.000],
+                        [0.500, 0.500, 0.000],
+                        [0.000, 0.500, 0.500],
+                        [0.500, 0.000, 0.500],
+
+                        [0.250, 0.250, 0.250],
+                        [0.250, 0.750, 0.750],
+                        [0.750, 0.750, 0.250],
+                        [0.750, 0.250, 0.750],
 
                         # Fe3 +
-                        [0.125 * Sc[0], 0.375 * Sc[1], 0.875 * Sc[2]],
-                        [0.375 * Sc[0], 0.125 * Sc[1], 0.875 * Sc[2]],
-                        [0.625 * Sc[0], 0.875 * Sc[1], 0.875 * Sc[2]],
-                        [0.875 * Sc[0], 0.625 * Sc[1], 0.875 * Sc[2]],
+                        [0.125, 0.375, 0.875],
+                        [0.375, 0.125, 0.875],
+                        [0.625, 0.875, 0.875],
+                        [0.875, 0.625, 0.875],
 
-                        [0.125 * Sc[0], 0.125 * Sc[1], 0.625 * Sc[2]],
-                        [0.375 * Sc[0], 0.375 * Sc[1], 0.625 * Sc[2]],
-                        [0.625 * Sc[0], 0.625 * Sc[1], 0.625 * Sc[2]],
-                        [0.875 * Sc[0], 0.875 * Sc[1], 0.625 * Sc[2]],
+                        [0.125, 0.125, 0.625],
+                        [0.375, 0.375, 0.625],
+                        [0.625, 0.625, 0.625],
+                        [0.875, 0.875, 0.625],
 
-                        [0.125 * Sc[0], 0.875 * Sc[1], 0.375 * Sc[2]],
-                        [0.375 * Sc[0], 0.625 * Sc[1], 0.375 * Sc[2]],
-                        [0.625 * Sc[0], 0.375 * Sc[1], 0.375 * Sc[2]],
-                        [0.875 * Sc[0], 0.125 * Sc[1], 0.375 * Sc[2]],
+                        [0.125, 0.875, 0.375],
+                        [0.375, 0.625, 0.375],
+                        [0.625, 0.375, 0.375],
+                        [0.875, 0.125, 0.375],
 
-                        [0.125 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
-                        [0.375 * Sc[0], 0.875 * Sc[1], 0.125 * Sc[2]],
-                        [0.625 * Sc[0], 0.125 * Sc[1], 0.125 * Sc[2]],
-                        [0.875 * Sc[0], 0.375 * Sc[1], 0.125 * Sc[2]],
+                        [0.125, 0.625, 0.125],
+                        [0.375, 0.875, 0.125],
+                        [0.625, 0.125, 0.125],
+                        [0.875, 0.375, 0.125],
 
                         # O2 -
-                        [0.125 * Sc[0], 0.125 * Sc[1], 0.875 * Sc[2]],
-                        [0.125 * Sc[0], 0.625 * Sc[1], 0.875 * Sc[2]],
-                        [0.375 * Sc[0], 0.375 * Sc[1], 0.875 * Sc[2]],
-                        [0.375 * Sc[0], 0.875 * Sc[1], 0.875 * Sc[2]],
-                        [0.625 * Sc[0], 0.125 * Sc[1], 0.875 * Sc[2]],
-                        [0.625 * Sc[0], 0.625 * Sc[1], 0.875 * Sc[2]],
-                        [0.875 * Sc[0], 0.375 * Sc[1], 0.875 * Sc[2]],
-                        [0.875 * Sc[0], 0.875 * Sc[1], 0.875 * Sc[2]],
+                        [0.125, 0.125, 0.875],
+                        [0.125, 0.625, 0.875],
+                        [0.375, 0.375, 0.875],
+                        [0.375, 0.875, 0.875],
+                        [0.625, 0.125, 0.875],
+                        [0.625, 0.625, 0.875],
+                        [0.875, 0.375, 0.875],
+                        [0.875, 0.875, 0.875],
 
-                        [0.125 * Sc[0], 0.375 * Sc[1], 0.625 * Sc[2]],
-                        [0.125 * Sc[0], 0.875 * Sc[1], 0.625 * Sc[2]],
-                        [0.375 * Sc[0], 0.125 * Sc[1], 0.625 * Sc[2]],
-                        [0.375 * Sc[0], 0.625 * Sc[1], 0.625 * Sc[2]],
-                        [0.625 * Sc[0], 0.375 * Sc[1], 0.625 * Sc[2]],
-                        [0.625 * Sc[0], 0.875 * Sc[1], 0.625 * Sc[2]],
-                        [0.875 * Sc[0], 0.125 * Sc[1], 0.625 * Sc[2]],
-                        [0.875 * Sc[0], 0.625 * Sc[1], 0.625 * Sc[2]],
+                        [0.125, 0.375, 0.625],
+                        [0.125, 0.875, 0.625],
+                        [0.375, 0.125, 0.625],
+                        [0.375, 0.625, 0.625],
+                        [0.625, 0.375, 0.625],
+                        [0.625, 0.875, 0.625],
+                        [0.875, 0.125, 0.625],
+                        [0.875, 0.625, 0.625],
 
-                        [0.125 * Sc[0], 0.125 * Sc[1], 0.375 * Sc[2]],
-                        [0.125 * Sc[0], 0.625 * Sc[1], 0.375 * Sc[2]],
-                        [0.375 * Sc[0], 0.375 * Sc[1], 0.375 * Sc[2]],
-                        [0.375 * Sc[0], 0.875 * Sc[1], 0.375 * Sc[2]],
-                        [0.625 * Sc[0], 0.125 * Sc[1], 0.375 * Sc[2]],
-                        [0.625 * Sc[0], 0.625 * Sc[1], 0.375 * Sc[2]],
-                        [0.875 * Sc[0], 0.375 * Sc[1], 0.375 * Sc[2]],
-                        [0.875 * Sc[0], 0.875 * Sc[1], 0.375 * Sc[2]],
+                        [0.125, 0.125, 0.375],
+                        [0.125, 0.625, 0.375],
+                        [0.375, 0.375, 0.375],
+                        [0.375, 0.875, 0.375],
+                        [0.625, 0.125, 0.375],
+                        [0.625, 0.625, 0.375],
+                        [0.875, 0.375, 0.375],
+                        [0.875, 0.875, 0.375],
 
-                        [0.125 * Sc[0], 0.375 * Sc[1], 0.125 * Sc[2]],
-                        [0.125 * Sc[0], 0.875 * Sc[1], 0.125 * Sc[2]],
-                        [0.375 * Sc[0], 0.125 * Sc[1], 0.125 * Sc[2]],
-                        [0.375 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
-                        [0.625 * Sc[0], 0.375 * Sc[1], 0.125 * Sc[2]],
-                        [0.625 * Sc[0], 0.875 * Sc[1], 0.125 * Sc[2]],
-                        [0.875 * Sc[0], 0.125 * Sc[1], 0.125 * Sc[2]],
-                        [0.875 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
-                        ]
-    atom_locations = np.array(atom_locations)
+                        [0.125, 0.375, 0.125],
+                        [0.125, 0.875, 0.125],
+                        [0.375, 0.125, 0.125],
+                        [0.375, 0.625, 0.125],
+                        [0.625, 0.375, 0.125],
+                        [0.625, 0.875, 0.125],
+                        [0.875, 0.125, 0.125],
+                        [0.875, 0.625, 0.125],
+                        ])
     location_list = None
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
@@ -287,14 +286,16 @@ def build_atom_locations(specimen, width):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
                 t = np.array([t1, t2, t3])
-                for element in range(0, elements):
-                    atom = np.arange(0, atomic_numbers[element][1])
+                elements = np.arange(len(atomic_numbers))
+                atoms = [np.arange(0, atomic_numbers[element, 1]) for element in elements]
+                for element in elements:
+                    atom = atoms[element]
 
                     # The way this is written ( * atomic_numbers[0][1]) only works for
                     # elements == 2.
-                    atom_index = atom + element * atomic_numbers[0, 1]
-                    index = np.arange(atomic_numbers[element, 1])
-                    loc = t * Sc + atom_locations
+                    # atom_index = atom + element * atomic_numbers[0, 1]
+                    # index = np.arange(atomic_numbers[element, 1])
+                    loc = t * Sc + atom_locations * Sc
 
                     ijk = np.floor(loc * M / aA)
                     ijk = ijk.astype(int)
@@ -319,7 +320,7 @@ def build_atom_locations(specimen, width):
         #print(i)
         # print(location_list[ind][0])
         # print(aA)
-        proj[i, j] = 1
+        proj[i, j] += 1
     from .plot import plot_image
     plot_image(proj)
     #return

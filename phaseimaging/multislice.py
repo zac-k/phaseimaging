@@ -191,7 +191,7 @@ def build_atom_locations(specimen, width):
     # Length of each side of cubic region containing specimen
     aA = width[0] * 1e10  # todo: make work with rectangular arrays
     # Number of unit cells in each dimension
-    Nc = ([int(aA/Sc[0]), int(aA/Sc[1]), int(aA/Sc[2])])
+    Nc = ([int(np.floor(aA/Sc[0])), int(np.floor(aA/Sc[1])), int(np.floor(aA/Sc[2]))])
 
     # Number of voxels across one dimension
     M = len(specimen)  # todo: make work with rectangular arrays
@@ -208,6 +208,7 @@ def build_atom_locations(specimen, width):
 
     # Array containing the atom locations within a cell. The crystal structure here
     # is magnetite.
+    # todo: bring Sc outside to make this easier to follow.
     atom_locations = [
                         # Fe2 +
                         [0.000 * Sc[0], 0.000 * Sc[1], 0.000 * Sc[2]],
@@ -279,7 +280,7 @@ def build_atom_locations(specimen, width):
                         [0.875 * Sc[0], 0.625 * Sc[1], 0.125 * Sc[2]],
                         ]
     atom_locations = np.array(atom_locations)
-    location_list = np.array([])
+    location_list = []
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     for t1 in range(0, Nc[0]):
@@ -304,25 +305,26 @@ def build_atom_locations(specimen, width):
                             # Create row
                             row = np.append(loc[ind], atomic_numbers[element, 0])
 
-                            location_list = list(location_list)
+
                             location_list.append(list(row))
-                            location_list = np.array(location_list)
+
 
                             atoms_read += 1
-
+                #print(t)
         progress_bar.update()
 
 
 
-    location_list = np.array(location_list)
+    #location_list = np.array(location_list)
     #print(location_list[np.where(location_list[:, 0] > 0)])
     proj = np.zeros((M, M))
+    print(max(max(location_list)))
     #print(len(location_list))
     for ind in range(len(location_list)):
         i = int(M * location_list[ind][0] / aA)
         j = int(M * location_list[ind][1] / aA)
         # print(M)
-        # print(i)
+        #print(i)
         # print(location_list[ind][0])
         # print(aA)
         proj[i, j] = 1

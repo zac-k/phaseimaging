@@ -204,7 +204,9 @@ def build_atom_locations(specimen, width):
 
     # Each pair is the atomic number followed by the number of atoms of this element
     atomic_numbers = np.array([[26, 24], [8, 32]])
-
+    elements = len(atomic_numbers)
+    z_nums = np.concatenate([np.ones(atomic_numbers[element, 1]) * atomic_numbers[element, 0]
+                             for element in range(elements)])
 
 
     # Array containing the atom fractional locations within a unit cell. The crystal structure here
@@ -289,17 +291,18 @@ def build_atom_locations(specimen, width):
                 t = np.array([t1, t2, t3])
                 loc = t * Sc + atom_locations * Sc
                 elements = np.arange(len(atomic_numbers))
-                for element in elements:
+                ijk = np.floor(loc * M / aA)
+                ijk = ijk.astype(int)
 
+                in_spec = vec_isin(ijk, specimen_coords)
+                if np.any(in_spec):
+                    ijk_in_spec = ijk[in_spec]
+                    loc_in_spec = loc[in_spec]
+                    z_nums_in_spec = z_nums[in_spec]
+                    # Add extra dimension to z_nums_in_spec for concatenation
+                    z_nums_in_spec = np.array([z_nums_in_spec])
+                    loc_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
 
-                    ijk = np.floor(loc * M / aA)
-                    ijk = ijk.astype(int)
-
-                    loc_is_in_spec = vec_isin(ijk, specimen_coords)
-                    ijk_in_spec = ijk[loc_is_in_spec]
-                    loc_in_spec = loc[loc_is_in_spec]
-                    z_nums = np.array([np.ones(len(loc_in_spec))*atomic_numbers[element, 0]])
-                    loc_list = np.concatenate([loc_in_spec, z_nums.T], axis=1)
                     if location_list is None:
                         location_list = copy.copy(loc_list)
                     else:

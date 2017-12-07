@@ -487,19 +487,21 @@ def vzatom(z, radius, fparams):
     if r < 1e-10:
         r = 1e-10
 
-    suml = sumg = 0
+    # suml = 0
 
     # Lorenzians
     x = 2 * PI * r
-    for i in range(0, 2 * nl, 2):
-        suml += fparams[z][i] * bessk0(x * np.sqrt(fparams[z][i + 1]))
+    # for i in range(0, 2 * nl, 2):
+    #     suml += fparams[z, i] * bessk0(x * np.sqrt(fparams[z, i + 1]))
+    i = np.arange(0, 2 * nl, 2)
+    suml = np.sum(fparams[z, i] * bessk0(x * np.sqrt(fparams[z, i + 1])))
 
     # Gaussians
     x = PI * r
     x = x * x
-    for i in range(2 * nl, 2 * (nl + ng), 2):
-        sumg += fparams[z][i] * np.exp(-x / fparams[z][i + 1]) \
-                / fparams[z][i + 1]
+
+    i = np.arange(2 * nl, 2 * (nl + ng), 2)
+    sumg = np.sum(fparams[z, i] * np.exp(-x / fparams[z, i + 1]) / fparams[z, i + 1])
 
     return al * suml + ag * sumg
 
@@ -513,44 +515,64 @@ def bessi0(x):
            -0.01647633, 0.00392377]
 
     ax = np.abs(x)
-    if ax <= 3.75:
-        t = x / 3.75
-        t = t * t
-        sum_ = i0a[6]
-        for i in [5, 4, 3, 2, 1, 0]:
-            sum_ = sum_ * t + i0a[i]
-    else:
-        t = 3.75 / ax
-        sum_ = i0b[8]
-        for i in [7, 6, 5, 4, 3, 2, 1, 0]:
-            sum_ = sum_ * t + i0b[i]
-        sum_ = np.exp(ax) * sum_ / np.sqrt(ax)
+    t = np.zeros(len(x))
+    indices = np.where(ax <= 3.75)
+    t[indices] = x[indices] / 3.75
+    t[indices] = t[indices] * t[indices]
+
+    sum_ = np.zeros(len(x))
+    sum_[indices] = i0a[6]
+    for i in [5, 4, 3, 2, 1, 0]:
+        sum_[indices] = sum_[indices] * t[indices] + i0a[i]
+
+
+    indices = np.where(ax > 3.75)
+    t[indices] = 3.75 / ax[indices]
+    sum_[indices] = i0b[8]
+    for i in [7, 6, 5, 4, 3, 2, 1, 0]:
+        sum_[indices] = sum_[indices] * t[indices] + i0b[i]
+    sum_[indices] = np.exp(ax[indices]) * sum_[indices] / np.sqrt(ax[indices])
 
     return sum_
 
 
 def bessk0(x):
 
-    k0a = [-0.57721566, 0.42278420, 0.23069756,
-           0.03488590, 0.00262698, 0.00010750, 0.00000740]
-    k0b = [1.25331414, -0.07832358, 0.02189568,
-           -0.01062446, 0.00587872, -0.00251540, 0.00053208]
+    k0a = np.array([-0.57721566, 0.42278420, 0.23069756,
+                    0.03488590, 0.00262698, 0.00010750, 0.00000740])
+    k0b = np.array([1.25331414, -0.07832358, 0.02189568,
+                    -0.01062446, 0.00587872, -0.00251540, 0.00053208])
     ax = np.abs(x)
-    if 0 < ax <= 2:
-        x2 = ax / 2
-        x2 = x2 * x2
-        sum_ = k0a[6]
-        for i in [5, 4, 3, 2, 1, 0]:
-            sum_ = sum_ * x2 + k0a[i]
-        sum_ = -np.log(ax / 2) * bessi0(x) + sum_
-    elif ax > 2:
-        x2 = 2 / ax
-        sum_ = k0b[6]
-        for i in [5, 4, 3, 2, 1, 0]:
-            sum_ = sum_ * x2 + k0b[i]
-        sum_ = np.exp(-ax) * sum_ / np.sqrt(ax)
-    else:
-        sum_ = 1e20
+
+    indices = np.where(np.logical_and(0 < ax, ax <= 2))
+    x2 = ax[indices] / 2
+    x2 = x2 * x2
+    # i = np.arange(5, -1, -1)
+    sum_ = np.zeros(len(x))
+
+
+    sum_[indices] = k0a[6]
+    for i in [5, 4, 3, 2, 1, 0]:
+        sum_[indices] = sum_[indices] * x2 + k0a[i]
+    # print(np.shape(ax[indices]))
+    # print(np.shape(sum_[indices]))
+    # print(x)
+    sum_[indices] = -np.log(ax[indices] / 2) * bessi0(x[indices]) + sum_[indices]
+
+    indices = np.where(ax > 2)
+    x2 = 2 / ax[indices]
+
+
+    sum_[indices] = k0b[6]
+    for i in [5, 4, 3, 2, 1, 0]:
+        sum_[indices] = sum_[indices] * x2 + k0b[i]
+
+
+    sum_[indices] = np.exp(-ax[indices]) * sum_[indices] / np.sqrt(ax[indices])
+
+
+    indices = np.where(ax <= 0)
+    sum_[indices] = 1e20
 
     return sum_
 
@@ -1937,4 +1959,4 @@ def read_fe_table():
     fparams[103][10] = 3.79258137e-001
     fparams[103][11] = 3.89973484e-001
 
-    return fparams
+    return np.array(fparams)

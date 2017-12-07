@@ -282,24 +282,19 @@ def build_atom_locations(specimen, width):
     location_list = None
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
+    specimen_coords = np.transpose(np.where(specimen != 0))
     for t1 in range(0, Nc[0]):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
                 t = np.array([t1, t2, t3])
+                loc = t * Sc + atom_locations * Sc
                 elements = np.arange(len(atomic_numbers))
-                atoms = [np.arange(0, atomic_numbers[element, 1]) for element in elements]
                 for element in elements:
-                    atom = atoms[element]
 
-                    # The way this is written ( * atomic_numbers[0][1]) only works for
-                    # elements == 2.
-                    # atom_index = atom + element * atomic_numbers[0, 1]
-                    # index = np.arange(atomic_numbers[element, 1])
-                    loc = t * Sc + atom_locations * Sc
 
                     ijk = np.floor(loc * M / aA)
                     ijk = ijk.astype(int)
-                    specimen_coords = np.transpose(np.where(specimen != 0))
+
                     loc_is_in_spec = vec_isin(ijk, specimen_coords)
                     ijk_in_spec = ijk[loc_is_in_spec]
                     loc_in_spec = loc[loc_is_in_spec]

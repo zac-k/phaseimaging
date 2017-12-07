@@ -452,8 +452,8 @@ def vz_atom_lut(z, rsq, fparams):
     # If this atomic number has not been called before, generate the spline coefficients
     if nspline[iz] == 0:
         r = np.sqrt(splinx)
-        for i in range(nrmax):
-            spliny[iz, i] = vzatom(z, r[i], fparams)
+        i = np.arange(nrmax)
+        spliny[iz, :] = vzatom(z, r, fparams)
         nspline[iz] = nrmax
         splinx, spliny[iz], splinb[iz], splinc[iz], splind[iz] = splinh(splinx,
                                                                                            spliny[iz],
@@ -484,24 +484,19 @@ def vzatom(z, radius, fparams):
     r = np.abs(radius)
 
     # Avoid singularity at r = 0
-    if r < 1e-10:
-        r = 1e-10
-
-    # suml = 0
+    r = np.where(r < 1e-10, 1e-10, r)
 
     # Lorenzians
     x = 2 * PI * r
-    # for i in range(0, 2 * nl, 2):
-    #     suml += fparams[z, i] * bessk0(x * np.sqrt(fparams[z, i + 1]))
     i = np.arange(0, 2 * nl, 2)
-    suml = np.sum(fparams[z, i] * bessk0(x * np.sqrt(fparams[z, i + 1])))
+    suml = np.array([np.sum(fparams[z, i] * bessk0(x0 * np.sqrt(fparams[z, i + 1]))) for x0 in x])
 
     # Gaussians
     x = PI * r
     x = x * x
 
     i = np.arange(2 * nl, 2 * (nl + ng), 2)
-    sumg = np.sum(fparams[z, i] * np.exp(-x / fparams[z, i + 1]) / fparams[z, i + 1])
+    sumg = np.array([np.sum(fparams[z, i] * np.exp(-x0 / fparams[z, i + 1]) / fparams[z, i + 1]) for x0 in x])
 
     return al * suml + ag * sumg
 

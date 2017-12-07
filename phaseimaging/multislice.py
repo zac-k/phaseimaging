@@ -297,39 +297,23 @@ def build_atom_locations(specimen, width):
     # Tile it sideways so that repeated entries are adjacent, and then reshape it
     # into a list of 3-vectors.
     cell_indices = np.reshape(np.tile(cell_indices, atoms_in_cell), (n_atoms, 3))
-    print(cell_indices)
+
+    # Tile atom_locations: one copy for each unit cell
     atom_locations = np.tile(atom_locations, (Nc_tot, 1))
-    print(atom_locations)
+
+    # Generate the complete array of atom locations.
     loc = (cell_indices + atom_locations) *Sc
-    elements = np.arange(len(atomic_numbers))
+
+    # Generate a list of bools (in_spec) showing which elements of the lists are in the specimen.
     ijk = np.floor(loc * M / aA)
     ijk = ijk.astype(int)
     in_spec = vec_isin(ijk, specimen_coords)
+
     if np.any(in_spec):
-        ijk_in_spec = ijk[in_spec]
-        loc_in_spec = loc[in_spec]
-
-        # Add extra dimension to z_nums_in_spec for concatenation
+        # Add extra dimension to z_nums_in_spec for concatenation,
+        # and join it to loc_in_spec to produce the final location_list.
         z_nums_in_spec = np.array([z_nums[in_spec]])
-
-        location_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
-
-
-
-
-
-    proj = np.zeros((M, M))
-    for ind in range(len(location_list)):
-        i = int(M * location_list[ind, 0] / aA)
-        j = int(M * location_list[ind, 1] / aA)
-        # print(M)
-        #print(i)
-        # print(location_list[ind][0])
-        # print(aA)
-        proj[i, j] += 1
-    from .plot import plot_image
-    plot_image(proj)
-    #return
+        location_list = np.concatenate((loc[in_spec], z_nums_in_spec.T), axis=1)
 
     return location_list
 

@@ -287,25 +287,14 @@ def build_atom_locations(specimen, width):
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     specimen_coords = np.transpose(np.where(specimen != 0))
-    cell_indices = np.moveaxis(np.mgrid[0:Nc[0], 0:Nc[1], 0:Nc[2]], 0, -1)
-
-    loc = None
-    for t1 in range(0, Nc[0]):
-        for t2 in range(0, Nc[1]):
-            for t3 in range(0, Nc[2]):
-                t = cell_indices[t1, t2, t3]
-                if loc is None:
-                    loc = (t + atom_locations) * Sc
-                else:
-                    loc = np.vstack((loc, ((t + atom_locations) * Sc)))
-        progress_bar.update()
+    cell_indices = np.reshape(np.moveaxis(np.mgrid[0:Nc[0], 0:Nc[1], 0:Nc[2]], 0, -1), (Nc_tot, 3))
+    cell_indices = np.tile(cell_indices, (atoms_in_cell, 1))
+    atom_locations = np.tile(atom_locations, (Nc_tot, 1))
+    loc = (cell_indices + atom_locations) *Sc
     elements = np.arange(len(atomic_numbers))
     ijk = np.floor(loc * M / aA)
     ijk = ijk.astype(int)
-    print(np.shape(ijk))
-    print(np.shape(loc))
     in_spec = vec_isin(ijk, specimen_coords)
-    print(np.shape(in_spec))
     if np.any(in_spec):
         ijk_in_spec = ijk[in_spec]
         loc_in_spec = loc[in_spec]
@@ -313,15 +302,11 @@ def build_atom_locations(specimen, width):
         # Add extra dimension to z_nums_in_spec for concatenation
         z_nums_in_spec = np.array([z_nums[in_spec]])
 
-        loc_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
+        location_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
 
-        if location_list is None:
-            location_list = copy.copy(loc_list)
-        else:
-            print("yes this happens")
-            location_list = np.vstack([location_list, loc_list])
 
-    print(location_list)
+
+
 
     proj = np.zeros((M, M))
     for ind in range(len(location_list)):

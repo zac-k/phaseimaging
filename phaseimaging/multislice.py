@@ -285,11 +285,13 @@ def build_atom_locations(specimen, width):
     print("Generating specimen...")
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     specimen_coords = np.transpose(np.where(specimen != 0))
+    cell_indices = np.mgrid[0:Nc[0], 0:Nc[1], 0:Nc[2]]
+    Nc_tot = np.prod(Nc)
     for t1 in range(0, Nc[0]):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
-                t = np.array([t1, t2, t3])
-                loc = t * Sc + atom_locations * Sc
+                t = cell_indices[:, t1, t2, t3]
+                loc = (t + atom_locations) * Sc
                 elements = np.arange(len(atomic_numbers))
                 ijk = np.floor(loc * M / aA)
                 ijk = ijk.astype(int)

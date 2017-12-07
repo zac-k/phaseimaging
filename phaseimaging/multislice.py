@@ -52,7 +52,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
     num_atoms = np.sum(atoms_in_range)
 
-    print(location_array[:100,:])
+    print(location_array[:100, :])
     print(atoms_in_range)
     print(sum(atoms_in_range))
     x = np.squeeze(location_array[np.where(atoms_in_range), 0] - aA / 2)
@@ -82,10 +82,9 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 5  # Slice thickness in Angstrom
-    wave = np.zeros(list((M, M)), dtype=complex)  # Incident beam
-    trans = np.zeros(list((M, M)), dtype=complex)  # Transmission function
-    temp = np.zeros(list((M, M)), dtype=complex)  # Scratch wavefunction
+    deltaz = 100  # Slice thickness in Angstrom
+
+    trans = np.zeros((M, M), dtype=complex)  # Transmission function
 
     cs3 = 5e6  # Spherical abberation in Angstrom
     cs5 = 0
@@ -93,23 +92,14 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
     wavelength = wavelength * 1e10  # Convert to Angstroms
 
-    xmin = xmax = x[0]
-    ymin = ymax = y[0]
-    zmin = zmax = z[0]
-    print(np.shape(x))
-    for i in range(num_atoms):
-        if x[i] < xmin:
-            xmin = x[i]
-        elif x[i] > xmax:
-            xmax = x[i]
-        if y[i] < ymin:
-            ymin = y[i]
-        elif y[i] > ymax:
-            ymax = y[i]
-        if z[i] < zmin:
-            zmin = z[i]
-        elif z[i] > zmax:
-            zmax = z[i]
+    xmin = np.min(x)
+    xmax = np.max(x)
+    ymin = np.min(y)
+    ymax = np.max(y)
+    zmin = np.min(z)
+    zmax = np.max(z)
+
+
     k1 = 1 / aA
     k2 = k1 * k1
 
@@ -130,9 +120,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
         propy[i] = np.cos(t) - np.sin(t) * 1j
 
     # Initialise incident wave to unity everywhere
-    for i in range(M):
-        for j in range(M):
-            wave[i, j] = 1 + 0j
+    wave = np.ones((M, M)) * (1 + 0j)
 
     x, y, z, z_number = sort_by_z(x, y, z, z_number)
     zmin = z[0]

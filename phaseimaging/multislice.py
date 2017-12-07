@@ -52,9 +52,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
     num_atoms = np.sum(atoms_in_range)
 
-    print(location_array[:100, :])
-    print(atoms_in_range)
-    print(sum(atoms_in_range))
+
     x = np.squeeze(location_array[np.where(atoms_in_range), 0] - aA / 2)
     y = np.squeeze(location_array[np.where(atoms_in_range), 1] - aA / 2)
     z = np.squeeze(location_array[np.where(atoms_in_range), 2] - aA / 2)
@@ -82,7 +80,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 100  # Slice thickness in Angstrom
+    deltaz = 10  # Slice thickness in Angstrom
 
     trans = np.zeros((M, M), dtype=complex)  # Transmission function
 
@@ -138,13 +136,10 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
     while zslice < aA:
         prog_bar.update()
         if istart < num_atoms:
-            na = 0
-            for i in range(istart, num_atoms):
-                if z[i] < zslice:
-                    na += 1
-                else:
-                    break
-            # Calculate transmission function. Skip if layer is empty
+            i = np.arange(istart, num_atoms)
+            na = np.shape(np.where(z[i] < zslice))[1]
+
+            # Calculate transmission function. Skip if layer is empty.
             if na > 0:
                 trans = trlayer(x[istart:num_atoms],
                                      y[istart:num_atoms],

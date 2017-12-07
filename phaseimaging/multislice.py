@@ -185,31 +185,35 @@ def build_atom_locations(specimen, width):
     :return: location_list
     """
 
-    # Size of unit cell in angstroms
+    # Let the user know the specimen is being generated
+    print("Generating specimen...")
+
+    # Size of unit cell in angstroms.
     Sc = np.array([8.32, 8.32, 8.32])
 
-    # Length of each side of cubic region containing specimen
+    # Length of each side of cubic region containing specimen.
     aA = width[0] * 1e10  # todo: make work with rectangular arrays
-    # Number of unit cells in each dimension
+    # Number of unit cells in each dimension.
     Nc = ([int(np.floor(aA/Sc[0])), int(np.floor(aA/Sc[1])), int(np.floor(aA/Sc[2]))])
 
-    # Number of voxels across one dimension
+    # Number of voxels across one dimension.
     M = len(specimen)  # todo: make work with rectangular arrays
 
-    atoms_read = 0
-    atoms_in_cell = 56
-    n_atoms = Nc[0] * Nc[1] * Nc[2] * atoms_in_cell
-
-    loc = np.zeros(3)
-
-    # Each pair is the atomic number followed by the number of atoms of this element
+    # Each pair is the atomic number followed by the number of atoms of this element.
     atomic_numbers = np.array([[26, 24], [8, 32]])
+    atoms_in_cell = np.sum(atomic_numbers[:, 1])
+    n_atoms = Nc[0] * Nc[1] * Nc[2] * atoms_in_cell
     elements = len(atomic_numbers)
+
+    # Determine total number of cells.
+    Nc_tot = np.prod(Nc)
+
+    # Generate a 1d array of atomic numbers in order.
     z_nums = np.concatenate([np.ones(atomic_numbers[element, 1]) * atomic_numbers[element, 0]
                              for element in range(elements)])
-    Nc_tot = np.prod(Nc)
-    z_nums = np.tile(z_nums, Nc_tot)
 
+    # Repeat the atomic numbers for each unit cell.
+    z_nums = np.tile(z_nums, Nc_tot)
 
     # Array containing the fractional atomic locations within a unit cell. The crystal structure here
     # is magnetite.
@@ -283,13 +287,19 @@ def build_atom_locations(specimen, width):
                         [0.875, 0.125, 0.125],
                         [0.875, 0.625, 0.125],
                         ])
-    location_list = None
-    print("Generating specimen...")
-    progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
+
+    # Obtain the coordinates where the specimen exists.
     specimen_coords = np.transpose(np.where(specimen != 0))
+
+    # Flatten the cell indices into a vector of 3-vectors.
     cell_indices = np.reshape(np.moveaxis(np.mgrid[0:Nc[0], 0:Nc[1], 0:Nc[2]], 0, -1), (Nc_tot, 3))
-    cell_indices = np.tile(cell_indices, (atoms_in_cell, 1))
+
+    # Tile it sideways so that repeated entries are adjacent, and then reshape it
+    # into a list of 3-vectors.
+    cell_indices = np.reshape(np.tile(cell_indices, atoms_in_cell), (n_atoms, 3))
+    print(cell_indices)
     atom_locations = np.tile(atom_locations, (Nc_tot, 1))
+    print(atom_locations)
     loc = (cell_indices + atom_locations) *Sc
     elements = np.arange(len(atomic_numbers))
     ijk = np.floor(loc * M / aA)

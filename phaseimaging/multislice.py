@@ -207,9 +207,11 @@ def build_atom_locations(specimen, width):
     elements = len(atomic_numbers)
     z_nums = np.concatenate([np.ones(atomic_numbers[element, 1]) * atomic_numbers[element, 0]
                              for element in range(elements)])
+    Nc_tot = np.prod(Nc)
+    z_nums = np.tile(z_nums, Nc_tot)
 
 
-    # Array containing the atom fractional locations within a unit cell. The crystal structure here
+    # Array containing the fractional atomic locations within a unit cell. The crystal structure here
     # is magnetite.
     atom_locations = np.array([
                         # Fe2 +
@@ -286,31 +288,39 @@ def build_atom_locations(specimen, width):
     progress_bar = pyprind.ProgBar(Nc[0], sys.stdout)
     specimen_coords = np.transpose(np.where(specimen != 0))
     cell_indices = np.moveaxis(np.mgrid[0:Nc[0], 0:Nc[1], 0:Nc[2]], 0, -1)
-    Nc_tot = np.prod(Nc)
+
+    loc = None
     for t1 in range(0, Nc[0]):
         for t2 in range(0, Nc[1]):
             for t3 in range(0, Nc[2]):
                 t = cell_indices[t1, t2, t3]
-                loc = (t + atom_locations) * Sc
-                elements = np.arange(len(atomic_numbers))
-                ijk = np.floor(loc * M / aA)
-                ijk = ijk.astype(int)
-
-                in_spec = vec_isin(ijk, specimen_coords)
-                if np.any(in_spec):
-                    ijk_in_spec = ijk[in_spec]
-                    loc_in_spec = loc[in_spec]
-
-                    # Add extra dimension to z_nums_in_spec for concatenation
-                    z_nums_in_spec = np.array([z_nums[in_spec]])
-
-                    loc_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
-
-                    if location_list is None:
-                        location_list = copy.copy(loc_list)
-                    else:
-                        location_list = np.vstack([location_list, loc_list])
+                if loc is None:
+                    loc = (t + atom_locations) * Sc
+                else:
+                    loc = np.vstack((loc, ((t + atom_locations) * Sc)))
         progress_bar.update()
+    elements = np.arange(len(atomic_numbers))
+    ijk = np.floor(loc * M / aA)
+    ijk = ijk.astype(int)
+    print(np.shape(ijk))
+    print(np.shape(loc))
+    in_spec = vec_isin(ijk, specimen_coords)
+    print(np.shape(in_spec))
+    if np.any(in_spec):
+        ijk_in_spec = ijk[in_spec]
+        loc_in_spec = loc[in_spec]
+
+        # Add extra dimension to z_nums_in_spec for concatenation
+        z_nums_in_spec = np.array([z_nums[in_spec]])
+
+        loc_list = np.concatenate((loc_in_spec, z_nums_in_spec.T), axis=1)
+
+        if location_list is None:
+            location_list = copy.copy(loc_list)
+        else:
+            print("yes this happens")
+            location_list = np.vstack([location_list, loc_list])
+
     print(location_list)
 
     proj = np.zeros((M, M))

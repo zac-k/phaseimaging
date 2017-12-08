@@ -142,9 +142,9 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
             # Calculate transmission function. Skip if layer is empty.
             if na > 0:
                 trans = trlayer(x[istart:num_atoms],
-                                     y[istart:num_atoms],
-                                     z_number[istart:num_atoms],
-                                     na, aA, trans, window, fparams, wavelength)
+                                y[istart:num_atoms],
+                                z_number[istart:num_atoms],
+                                na, aA, trans, window, fparams, wavelength)
 
                 print("Transmit wave...")
                 wave = transmit_wave(wave, trans)
@@ -388,6 +388,7 @@ def tratoms(trans, x, y, z_number, scalex, scaley, idx, rmax2, rminsq, na, fpara
 
 
     prog_bar = pyprind.ProgBar(na, stream=sys.stdout)
+    print(na)
     for i in range(na):
         ixv = np.arange(nx1[i], nx2[i] + 1)
         ixw = np.mod(ixv, M)
@@ -403,11 +404,19 @@ def tratoms(trans, x, y, z_number, scalex, scaley, idx, rmax2, rminsq, na, fpara
         rsq = rsqx + rsqy
         rsq = np.where(rsq >= rminsq, rsq, rminsq)
 
-        for ix in range(nx1[i], nx2[i] + 1):
-            for iy in range(ny1[i], ny2[i] + 1):
-                if rsq[ix - nx1[i], iy - ny1[i]] <= rmax2:
-                    vz = vz_atom_lut(z_number[i], rsq[ix - nx1[i], iy - ny1[i]], fparams)
-                    trans[ixw[ix - nx1[i]], iyw[iy - ny1[i]]] += vz
+
+        ix = np.arange(0, nx2[i] - nx1[i] + 1)
+        iy = np.arange(0, ny2[i] - ny1[i] + 1)
+        np.where(rsq[ix, iy] <= rmax2,
+                 trans[ixw[ix], iyw[iy]] + vz_atom_lut(z_number[i], rsq[ix, iy], fparams), trans[ixw[ix], iyw[iy]])
+
+
+
+        # for ix in range(nx1[i], nx2[i] + 1):
+        #     for iy in range(ny1[i], ny2[i] + 1):
+        #         if rsq[ix - nx1[i], iy - ny1[i]] <= rmax2:
+        #             vz = vz_atom_lut(z_number[i], rsq[ix - nx1[i], iy - ny1[i]], fparams)
+        #             trans[ixw[ix - nx1[i]], iyw[iy - ny1[i]]] += vz
 
 def vz_atom_lut(z, rsq, fparams):
     """
@@ -628,25 +637,48 @@ def splinh(x, y, b, c, d, n):
 def seval(x, y, b, c, d, n, x0):
     # Exit if x0 is outside the spline range
     n = int(n)
-    if x0 <= x[0]:
-        i = 0
-    elif x0 >= x[n - 2]:
-        i = n - 2
-    else:
-        i = 0
-        j = n
 
-        k = int((i + j) / 2)
-        if x0 < x[k]:
-            j = k
-        elif x0 >= x[k]:
-            i = k
-        while j - i > 1:
-            k = int((i + j) / 2)
-            if x0 < x[k]:
-                j = k
-            elif x0 >= x[k]:
-                i = k
+    i = 0
+    j = n
+
+    k = int((i + j) / 2)
+    j = np.where(x0 < x[k], k, j)
+    i = np.where(x0 >= x[k], k, i)
+    k = ((i + j) / 2).astype(int)
+
+    j = np.where(x0 < x[k], k, j)
+    i = np.where(x0 >= x[k], k, i)
+
+    j = j[np.where(j - 1 > 1)]
+    i = i[np.where(j - 1 > 1)]
+
+    i = np.where(x0 >= x[n - 2], n - 2, i)
+    i = np.where(x0 <= x[0], 0, i)
+
+
+
+
+
+
+    # if x0 <= x[0]:
+    #     i = 0
+    # elif x0 >= x[n - 2]:
+    #     i = n - 2
+    # else:
+    #     i = 0
+    #     j = n
+    #
+    #     k = int((i + j) / 2)
+    #     if x0 < x[k]:
+    #         j = k
+    #     elif x0 >= x[k]:
+    #         i = k
+    #     while j - i > 1:
+    #         k = int((i + j) / 2)
+    #         if x0 < x[k]:
+    #             j = k
+    #         elif x0 >= x[k]:
+    #             i = k
     z = x0 - x[i]
     seval1 = y[i] + (b[i] + (c[i] + d[i] * z) * z) * z
     return seval1

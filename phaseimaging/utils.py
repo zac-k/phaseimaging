@@ -60,7 +60,7 @@ def accel_volt_to_lambda(accel_volt):
     Args:
         accel_volt (float): The electron accelerating voltage in volts
     Returns:
-        lambda (float): The relativistic wavelength of the electrons.
+        lambda (float): The relativistic wavelength of the electrons in metres.
     """
     return 12.25e-10/np.sqrt(accel_volt) * 1/np.sqrt(1 + (-e * accel_volt / (2 * m0 * c*c)))
 

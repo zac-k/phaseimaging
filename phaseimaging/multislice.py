@@ -5,6 +5,7 @@ import sys
 from numpy import fft
 from .utils import lambda_to_accel_volt
 from .utils import vec_isin
+from .plot import plot_image
 import copy
 
 npmax = 12
@@ -80,7 +81,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 10  # Slice thickness in Angstrom
+    deltaz = 100  # Slice thickness in Angstrom
 
     trans = np.zeros((M, M), dtype=complex)  # Transmission function
 
@@ -107,15 +108,11 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
     k2max = k2max * k2max
 
     k2, window = freqn(res, aA, k2max)
-    propx = np.zeros(M, dtype=complex)
-    propy = np.zeros(M, dtype=complex)
-
     scale = PI * deltaz
+    t = scale * k2 * wavelength
+    propx = np.cos(t) - np.sin(t) * 1j
+    propy = np.cos(t) - np.sin(t) * 1j
 
-    for i in range(M):
-        t = scale * k2[i] * wavelength
-        propx[i] = np.cos(t) - np.sin(t) * 1j
-        propy[i] = np.cos(t) - np.sin(t) * 1j
 
     # Initialise incident wave to unity everywhere
     wave = np.ones((M, M)) * (1 + 0j)
@@ -150,7 +147,6 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
                 wave = transmit_wave(wave, trans)
         wave = fft.fft2(wave)
         wave = propagate_wave(wave, propx, propy, k2, k2max)
-
         wave = fft.ifft2(wave)
         zslice += deltaz
         istart += na
@@ -349,7 +345,8 @@ def trlayer(x, y, z_number, na, aA, trans, window, fparams, wavelength):
     M = res[0]  # todo: make work with rectangular arrays
     rmax = 3  # Maximum atomic radius in Angstrom
     rmax2 = rmax * rmax
-    scale = sigma(wavelength)  # in 1 / (volt-Anstroms)
+    # todo: remove factor of -1e12 which is a fix
+    scale = sigma(wavelength) * -1e12  # in 1 / (volt-Anstroms)
     scalex = aA / M
     scaley = aA / M
 
@@ -366,7 +363,7 @@ def trlayer(x, y, z_number, na, aA, trans, window, fparams, wavelength):
 
     # Convert phase to complex transmission function
     vz = scale * trans.real
-    trans = np.cos(vz) + np.sin(vz)
+    trans = np.cos(vz) + np.sin(vz)*1j
 
     # Bandwidth limit the transmission function
     trans = fft.fft2(trans)
@@ -388,7 +385,6 @@ def tratoms(trans, x, y, z_number, scalex, scaley, idx, rmax2, rminsq, na, fpara
 
 
     prog_bar = pyprind.ProgBar(na, stream=sys.stdout)
-    print(na)
     for i in range(na):
         ixv = np.arange(nx1[i], nx2[i] + 1)
         ixw = np.mod(ixv, M)
@@ -405,18 +401,21 @@ def tratoms(trans, x, y, z_number, scalex, scaley, idx, rmax2, rminsq, na, fpara
         rsq = np.where(rsq >= rminsq, rsq, rminsq)
 
 
-        ix = np.arange(0, nx2[i] - nx1[i] + 1)
-        iy = np.arange(0, ny2[i] - ny1[i] + 1)
-        np.where(rsq[ix, iy] <= rmax2,
-                 trans[ixw[ix], iyw[iy]] + vz_atom_lut(z_number[i], rsq[ix, iy], fparams), trans[ixw[ix], iyw[iy]])
+# The following is vectorisation code for the ix, iy nested loop below, but it can't run until
+# seval() is vectorised. I tried to do that too, but one or both of these vectorised loops is not working.
+# I've left them here so that they are available when I get around to fixing it again.
+        # ix = np.arange(0, nx2[i] - nx1[i] + 1)
+        # iy = np.arange(0, ny2[i] - ny1[i] + 1)
+        # np.where(rsq[ix, iy] <= rmax2,
+        #          trans[ixw[ix], iyw[iy]] + vz_atom_lut(z_number[i], rsq[ix, iy], fparams), trans[ixw[ix], iyw[iy]])
 
 
 
-        # for ix in range(nx1[i], nx2[i] + 1):
-        #     for iy in range(ny1[i], ny2[i] + 1):
-        #         if rsq[ix - nx1[i], iy - ny1[i]] <= rmax2:
-        #             vz = vz_atom_lut(z_number[i], rsq[ix - nx1[i], iy - ny1[i]], fparams)
-        #             trans[ixw[ix - nx1[i]], iyw[iy - ny1[i]]] += vz
+        for ix in range(nx1[i], nx2[i] + 1):
+            for iy in range(ny1[i], ny2[i] + 1):
+                if rsq[ix - nx1[i], iy - ny1[i]] <= rmax2:
+                    vz = vz_atom_lut(z_number[i], rsq[ix - nx1[i], iy - ny1[i]], fparams)
+                    trans[ixw[ix - nx1[i]], iyw[iy - ny1[i]]] += vz
 
 def vz_atom_lut(z, rsq, fparams):
     """
@@ -634,7 +633,11 @@ def splinh(x, y, b, c, d, n):
     return x, y, b, c, d
 
 
-def seval(x, y, b, c, d, n, x0):
+def seval_vectorised_not_working(x, y, b, c, d, n, x0):
+    """
+    This is an attempt to vectorise the seval() function so that it works nicely with
+    other functions. Not working. Will fix later.
+    """
     # Exit if x0 is outside the spline range
     n = int(n)
 
@@ -655,34 +658,36 @@ def seval(x, y, b, c, d, n, x0):
     i = np.where(x0 >= x[n - 2], n - 2, i)
     i = np.where(x0 <= x[0], 0, i)
 
-
-
-
-
-
-    # if x0 <= x[0]:
-    #     i = 0
-    # elif x0 >= x[n - 2]:
-    #     i = n - 2
-    # else:
-    #     i = 0
-    #     j = n
-    #
-    #     k = int((i + j) / 2)
-    #     if x0 < x[k]:
-    #         j = k
-    #     elif x0 >= x[k]:
-    #         i = k
-    #     while j - i > 1:
-    #         k = int((i + j) / 2)
-    #         if x0 < x[k]:
-    #             j = k
-    #         elif x0 >= x[k]:
-    #             i = k
     z = x0 - x[i]
     seval1 = y[i] + (b[i] + (c[i] + d[i] * z) * z) * z
     return seval1
 
+
+def seval(x, y, b, c, d, n, x0):
+    # Exit if x0 is outside the spline range
+    n = int(n)
+    if x0 <= x[0]:
+        i = 0
+    elif x0 >= x[n - 2]:
+        i = n - 2
+    else:
+        i = 0
+        j = n
+
+        k = int((i + j) / 2)
+        if x0 < x[k]:
+            j = k
+        elif x0 >= x[k]:
+            i = k
+        while j - i > 1:
+            k = int((i + j) / 2)
+            if x0 < x[k]:
+                j = k
+            elif x0 >= x[k]:
+                i = k
+    z = x0 - x[i]
+    seval1 = y[i] + (b[i] + (c[i] + d[i] * z) * z) * z
+    return seval1
 
 def transmit_wave(wave, trans):
     wave = wave.real * trans.real - wave.imag * trans.imag + (wave.real * trans.imag + wave.imag
@@ -691,17 +696,18 @@ def transmit_wave(wave, trans):
 
 def sigma(wavelength):
     """
-    Interaction parameter sigma in radians/(kV-Angstrom)
+    Interaction parameter sigma in radians/(V-Angstrom)
     :param kev:
     :return:
     """
 
-    # wavelength is in A, so convert to m before calculating energy.
+    # wavelength is in A, so convert to m before calculating energy,
     energy = lambda_to_accel_volt(wavelength * 1e-10)
 
-    emass = 510.99906  # Electron mass in keV
+    emass = 510.99906 * 1000  # Electron mass in eV
     x = (emass + energy) / (2 * emass + energy)
-    return 2 * PI * x / (wavelength * energy)
+    # Convert wavelength back to Angstroms before returning interaction parameter.
+    return 2 * PI * x / (wavelength * 1e10 * energy)
 
 
 def propagate_wave(wave, propx, propy, k2, k2max):

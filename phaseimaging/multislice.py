@@ -5,6 +5,7 @@ import sys
 from numpy import fft
 from .utils import lambda_to_accel_volt
 from .utils import vec_isin
+from .imaging import construct_k_kernel, construct_k_squared_kernel
 from .plot import plot_image
 import copy
 
@@ -16,20 +17,19 @@ nl = 3
 ng = 3
 SMALL = 1e-25
 
-def project_phase_ms(axis, angle, wavelength, width, res, location_array):
+def project_phase_ms(axis, angle, wavelength, width, res, location_array, slice_thickness=5e-10):
     """
     Multislice simulation method
     Note that this code is based on the theory described in
     "Advanced Computing in Electrons Microscopy" (Plenum 1998, Springer 2010) by Earl J. Kirkland,
-    and much of it is adapted from Kirkland's C code, available at
+    and much of it is adapted directly from Kirkland's C code, available at
     http://people.ccmr.cornell.edu/~kirkland/cdownloads.html
     :return:
     """
 
 
     # todo: make width and res work with rectangular arrays
-    width = width[0]
-    aA = width * 1e10
+    aA = width[0] * 1e10
 
     M = res[0]
     xhat = np.array([1, 0, 0])
@@ -81,7 +81,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
 
     print("There is a total of {0} atoms in the specimen".format(num_atoms))
-    deltaz = 100  # Slice thickness in Angstrom
+    deltaz = slice_thickness * 1e10  # Slice thickness in Angstrom
 
     trans = np.zeros((M, M), dtype=complex)  # Transmission function
 
@@ -107,11 +107,17 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
     print("Bandwidth limited to a real space resolution of {0} Angstroms".format(1 / k2max))
     k2max = k2max * k2max
 
-    k2, window = freqn(res, aA, k2max)
+    window = freqn(res, aA, k2max)
     scale = PI * deltaz
-    t = scale * k2 * wavelength
-    propx = np.cos(t) - np.sin(t) * 1j
-    propy = np.cos(t) - np.sin(t) * 1j
+
+    # todo: k2 prior to the following line will not be used and needs to be removed
+
+    k = construct_k_kernel(res[0:2], (aA, aA))
+    k2_sep = np.square(k)  # This is not |k|^2. Each component is squared separately
+    k2 = construct_k_squared_kernel(res[0:2], (aA, aA))
+
+    t = scale * k2_sep * wavelength
+    prop = np.cos(t) - np.sin(t) * 1j
 
 
     # Initialise incident wave to unity everywhere
@@ -145,9 +151,7 @@ def project_phase_ms(axis, angle, wavelength, width, res, location_array):
 
                 print("Transmit wave...")
                 wave = transmit_wave(wave, trans)
-        wave = fft.fft2(wave)
-        wave = propagate_wave(wave, propx, propy, k2, k2max)
-        wave = fft.ifft2(wave)
+        wave = propagate_wave(wave, prop, window)
         zslice += deltaz
         istart += na
 
@@ -310,7 +314,7 @@ def rotation_matrix(axis, angle):
     return r
 
 def freqn(res, aA, k2max):
-    M = res[0]  # todo: make work with rectangular arrays
+    M = res[0]
     nbeams = 0
     xo = np.arange(M) * aA / (M - 1)
     imid = M / 2
@@ -325,7 +329,7 @@ def freqn(res, aA, k2max):
 
     window = fft.ifftshift(window)
     ko2 = fft.ifftshift(ko2)
-    return ko2, window
+    return window
 
 def sort_by_z(x, y, z, z_number):
     """
@@ -342,11 +346,11 @@ def sort_by_z(x, y, z, z_number):
 def trlayer(x, y, z_number, na, aA, trans, window, fparams, wavelength):
 
     res = np.shape(trans)
-    M = res[0]  # todo: make work with rectangular arrays
+    M = res[0]
     rmax = 3  # Maximum atomic radius in Angstrom
     rmax2 = rmax * rmax
-    # todo: remove factor of -1e12 which is a fix
-    scale = sigma(wavelength) * -1e12  # in 1 / (volt-Anstroms)
+    # todo: remove division by negative wavelength, which is a fix
+    scale = sigma(wavelength) / (-1*wavelength/1e10)  # in 1 / (volt-Anstroms)
     scalex = aA / M
     scaley = aA / M
 
@@ -710,29 +714,21 @@ def sigma(wavelength):
     return 2 * PI * x / (wavelength * 1e10 * energy)
 
 
-def propagate_wave(wave, propx, propy, k2, k2max):
+def propagate_wave(wave, prop, window):
     res = np.shape(wave)
-    M = res[0]  # todo: make work with rectangular arrays
+    M = res[0]
+    wave = fft.fft2(wave)
 
-    for i in range(M):
-        if True:#k2[i] < k2max:  # todo: why did I comment this out? Maybe I implemented filtering elsewhere?
-            pxr = propx[i].real
-            pxi = propx[i].imag
-            for j in range(M):
-                if k2[i] + k2[j] < k2max:
-                    pyr = propy[j].real
-                    pyi = propy[j].imag
-                    wr = wave[i, j].real
-                    wi = wave[i, j].imag
-                    tr = wr * pyr - wi * pyi
-                    ti = wr * pyi + wi * pyr
-                    wave[i, j] = tr * pxr - ti * pxi + (tr * pxi + ti * pxr) * 1j
-                else:
-                    wave[i, j] = 0 + 0j
-        else:
-            for j in range(M):
-                wave[i, j] = 0 + 0j
+    px = np.where(window == 1, prop[:, :, 0], 0)
+    py = np.where(window == 1, prop[:, :, 1], 0)
 
+    # px = prop[:, :, 0]
+    # py = prop[:, :, 1]
+
+    t = wave.real * px.real - wave.imag * px.imag + (wave.real * px.imag + wave.imag * px.real) * 1j
+    wave = t.real * py.real - t.imag * py.imag + (t.real * py.imag + t.imag * py.real) * 1j
+
+    wave = fft.ifft2(wave)
     return wave
 
 def calculate_integrated_intensity(wave):
